@@ -15,7 +15,12 @@ class GridMap
 	const double FULL_INCREMENT = 1.0;
 	const double EMPTY_DECREMENT = -1.0;
 public:
+	GridMap();
+
 	GridMap(double mnx, double mxx, double mny, double mxy, double ss);
+
+	GridMap(const GridMap& gm);
+	const GridMap & operator=(const GridMap & gm);
 
 	uint8_t at(double x, double y) const;
 

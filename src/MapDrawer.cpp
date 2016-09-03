@@ -1,10 +1,11 @@
 #include "MapDrawer.hpp"
+#include <thread>
 
 using namespace std;
 
 void MapDrawer::startDrawThread()
 {
-	thread draw_thread(startDraw, this);
+	thread draw_thread(&MapDrawer::startDraw, this);
 	draw_thread.detach();
 }
 
@@ -36,7 +37,7 @@ void MapDrawer::startDraw()
 	}
 }
 //0,0 = (400, 300)
-void MapDrawer::drawMap(sf::Window & win)
+void MapDrawer::drawMap(sf::RenderWindow & win)
 {
 	unique_lock<mutex> map_lock(map_mut);
 
@@ -61,7 +62,7 @@ void MapDrawer::drawMap(sf::Window & win)
 		//greater than, or <=?
 		if(num_cols < col_num)
 		{
-			col_num -= num_cols
+			col_num -= num_cols;
 			++row_num;
 		}
 		sf::Vertex * square = &grid[i*4];

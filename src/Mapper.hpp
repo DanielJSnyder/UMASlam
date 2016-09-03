@@ -5,6 +5,7 @@
 #include "Pose.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include "../lcmtypes/laser_t.hpp"
+#include "../lcmtypes/state_t.hpp"
 
 class Mapper
 {
@@ -13,7 +14,11 @@ public:
 
 	void handleLaserScan(const lcm::ReceiveBuffer * rbuf, 
 						 const std::string & chan,
-						 const common::LCM::types::laser_t & lidar_scan);
+						 const common::LCM::types::laser_t * lidar_scan);
+
+	void handleState(const lcm::ReceiveBuffer * rbuf,
+					 const std::string & chan,
+					 const common::LCM::types::state_t * state);
 
 	void addToMap(const common::LCM::types::laser_t & lidar_scan);
 

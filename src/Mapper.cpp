@@ -13,9 +13,16 @@ Mapper::Mapper(double mnx, double mxx, double mny, double mxy, double ss) :
 
 void Mapper::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
 							 const string & chan,
-							 const laser_t & lidar_scan)
+							 const laser_t * lidar_scan)
 {
-	this->addToMap(lidar_scan);
+	this->addToMap(*lidar_scan);
+}
+
+void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
+						 const string & chan, 
+						 const state_t * state)
+{
+	this->addPose(SLAM::Pose(state->x, state->y, state->yaw, state->utime));
 }
 
 void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
