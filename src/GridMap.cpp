@@ -4,7 +4,7 @@
 using namespace std;
 
 GridMap::GridMap(double mnx, double mxx, double mny, double mxy, double ss):
-	map((abs(mnx)+ abs(mxx))/ss * (abs(mny) + abs(mxy))/ss),
+	map((abs(mnx)+ abs(mxx))/ss * (abs(mny) + abs(mxy))/ss, 128),//intialize the map to be all grey
 	max_x(mxx),
 	max_y(mxy),
 	min_x(mnx),
@@ -43,4 +43,9 @@ size_t GridMap::convertToGridCoords(double x, double y) const
 	size_t y_idx = ty/square_size_meters;
 
 	return (x_idx + y_idx * cells_per_row);
+}
+
+const uint8_t& GridMap::operator[] (size_t idx) const
+{
+	return map[idx];
 }

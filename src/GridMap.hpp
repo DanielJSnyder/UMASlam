@@ -4,6 +4,12 @@
 #include <vector>
 #include <cstdint>
 
+
+//coord system
+// ^ x
+// |
+// |
+// |___>	y
 class GridMap
 {
 	const double FULL_INCREMENT = 1.0;
@@ -16,12 +22,42 @@ public:
 	//accesses the vector 
 	uint8_t& at(double x, double y);
 
-protected:
 	//helper function
 	std::size_t convertToGridCoords(double x, double y) const;
 
+	double getMaxX() const
+	{
+		return max_x;
+	}
+	double getMinX() const
+	{
+		return min_x;
+	}
+	double getMaxY() const
+	{
+		return max_y;
+	}
+	double getMinY() const
+	{
+		return min_y;
+	}
+	double getSquareSize() const
+	{
+		return square_size_meters;
+	}
+	std::size_t getCellsPerRow() const 
+	{
+		return cells_per_row;
+	}
+	std::size_t getNumCells() const
+	{
+		return map.size();
+	}
+
+	const uint8_t& operator[](std::size_t idx) const;
 private:
-	//actual map containing the proabilities 
+	//actual map containing the probabilities 
+	//idx 0 is bottom left (-y, -x)
 	std::vector<uint8_t> map;
 
 	//extents of the map in x and y
