@@ -9,7 +9,8 @@ GridMap::GridMap() :
 	max_y(0),
 	min_x(0),
 	min_y(0),
-	square_size_meters(0)
+	square_size_meters(0),
+	cells_per_row(0)
 {
 }
 

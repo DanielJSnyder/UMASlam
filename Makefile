@@ -9,6 +9,9 @@ TEST_PATH = ./unit_tests
 
 all: GridTest MapperTest
 
+debug: FLAGS += -DSLAM_DEBUG
+debug: all
+
 obj/%.o: $(SRC_PATH)/%.cpp
 	$(CXX) $(FLAGS) -c  $^ -o $@
 

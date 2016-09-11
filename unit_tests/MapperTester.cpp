@@ -5,14 +5,13 @@
 #include <thread>
 
 using namespace std;
-const char * LASER_SCAN_CHANNEL = "LASER_SCAN"; 
+const char * LASER_SCAN_CHANNEL = "SENSOR_LASER"; 
 const char * STATE_CHANNEL = "STATE_CHANNEL";   
 
 int main()
 {
-
 	//initialize a giant map
-	Mapper mapper(-100, 100, -100, 100, 1);
+	Mapper mapper(-30, 30, -30, 30, .5);
 
 	lcm::LCM lcm;
 	lcm.subscribe(LASER_SCAN_CHANNEL, &Mapper::handleLaserScan, &mapper);

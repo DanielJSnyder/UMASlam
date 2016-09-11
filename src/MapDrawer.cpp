@@ -1,10 +1,12 @@
 #include "MapDrawer.hpp"
+#include <iostream>
 #include <thread>
 
 using namespace std;
 
 void MapDrawer::startDrawThread()
 {
+	cerr << "Starting Draw Thread" << endl;
 	thread draw_thread(&MapDrawer::startDraw, this);
 	draw_thread.detach();
 }
@@ -33,7 +35,7 @@ void MapDrawer::startDraw()
 		//clear the window
 		window.clear(sf::Color::White);
 		drawMap(window);
-		
+		this_thread::sleep_for(std::chrono::milliseconds(500));
 	}
 }
 //0,0 = (400, 300)
@@ -42,6 +44,11 @@ void MapDrawer::drawMap(sf::RenderWindow & win)
 	unique_lock<mutex> map_lock(map_mut);
 
 	size_t num_cols = map.getCellsPerRow();
+	if(num_cols == 0)
+	{
+		win.display();
+		return;
+	}
 	size_t num_rows = map.getNumCells()/num_cols;
 
 	//calculate row and column for 0,0

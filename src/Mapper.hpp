@@ -34,7 +34,7 @@ private:
 	GridMap map;
 	double laser_step_size;
 
-	const int8_t FULL_INC = 1;
+	const int8_t FULL_INC = 5;
 	const int8_t EMPTY_INC = -1;
 };
 

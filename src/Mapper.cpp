@@ -1,4 +1,5 @@
 #include "Mapper.hpp"
+#include <iostream>
 #include <cmath>
 
 using namespace std;
@@ -15,6 +16,9 @@ void Mapper::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
 							 const string & chan,
 							 const laser_t * lidar_scan)
 {
+	#ifdef SLAM_DEBUG
+	cout << "adding a laser scan to the map" << endl;
+	#endif
 	this->addToMap(*lidar_scan);
 }
 
@@ -49,6 +53,9 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 	//for each laser, calculate the beams to step along
 	for(int i = 0; i < lidar_scan.nranges; ++i)
 	{
+		if(lidar_scan.ranges[i] < 1)
+			continue;
+
 		const SLAM::Pose & start_position = closest_pose;
 		//start_position.x = (last_pose.x + velx * i);
 		//start_position.y = (last_pose.y + vely * i);
@@ -56,7 +63,11 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 
 		double angle = start_position.theta + lidar_scan.rad0 + lidar_scan.radstep * i;
 		double cos_ang = cos(angle);
-		double sin_ang = sin(angle);
+		double sin_ang = sin(-angle);
+
+		#ifdef SLAM_DEBUG
+		cout << "range: " << lidar_scan.ranges[i] << endl;
+		#endif
 
 		double endx = start_position.x + lidar_scan.ranges[i] * cos_ang;
 		double endy = start_position.y + lidar_scan.ranges[i] * sin_ang;
@@ -70,13 +81,13 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 		size_t last_cell = map.convertToGridCoords(cx, cy);
 		size_t end_cell = map.convertToGridCoords(endx, endy);
 		//ignore the first cell as thats where you are
-		for(int j = 0; j < lidar_scan.ranges[i]/laser_step_size; ++i)
+		for(int j = 0; j < lidar_scan.ranges[i]/laser_step_size; ++j)
 		{
 			cx += incx;
 			cy += incy;
 			size_t cell = map.convertToGridCoords(cx, cy);
 
-			if(last_cell != cell)
+			if(last_cell != cell && cell != end_cell)
 			{
 				if(cell != end_cell)
 				{
@@ -84,8 +95,14 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 				}
 				last_cell = cell;
 			}
+			else if(end_cell == cell)
+			{
+				break;
+			}
 		}
-
+		#ifdef SLAM_DEBUG
+		cout << "setting (" << endx << " , " << endy << ") as full" << endl;
+		#endif
 		addAsFull(endx, endy);
 	}
 }
