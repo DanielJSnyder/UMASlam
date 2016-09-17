@@ -7,14 +7,16 @@
 using namespace std;
 const char * LASER_SCAN_CHANNEL = "SENSOR_LASER"; 
 const char * STATE_CHANNEL = "STATE_CHANNEL";   
+const char * SERVO_CHANNEL = "SENSOR_LASER_SERVO";
 
 int main()
 {
 	//initialize a giant map
-	Mapper mapper(-30, 30, -30, 30, .5);
+	Mapper mapper(-30, 30, -30, 30, .25);
 
 	lcm::LCM lcm;
 	lcm.subscribe(LASER_SCAN_CHANNEL, &Mapper::handleLaserScan, &mapper);
+	lcm.subscribe(SERVO_CHANNEL, &Mapper::handleServo, &mapper);
 	lcm.subscribe(STATE_CHANNEL, &Mapper::handleState, &mapper);
 	
 	MapDrawer drawer;

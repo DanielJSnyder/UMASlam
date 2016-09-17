@@ -9,7 +9,7 @@ TEST_PATH = ./unit_tests
 
 all: GridTest MapperTest
 
-debug: FLAGS += -DSLAM_DEBUG
+debug: FLAGS += -DSLAM_DEBUG_LEVEL=$(LEVEL)
 debug: all
 
 obj/%.o: $(SRC_PATH)/%.cpp

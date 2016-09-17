@@ -1,4 +1,5 @@
 #include "Mapper.hpp"
+#include "Utilities.hpp"
 #include <iostream>
 #include <cmath>
 
@@ -16,10 +17,16 @@ void Mapper::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
 							 const string & chan,
 							 const laser_t * lidar_scan)
 {
-	#ifdef SLAM_DEBUG
-	cout << "adding a laser scan to the map" << endl;
-	#endif
+	logDebugMsg("adding a laser scan to the map", 1);
 	this->addToMap(*lidar_scan);
+}
+
+void Mapper::handleServo(const lcm::ReceiveBuffer * rbuf,
+						 const string & chan,
+						 const servo_t * servo)
+{
+	logDebugMsg("setting last servo angle to: " + to_string(servo->angle + M_PI/2.0), 1);
+	last_servo_angle = servo->angle + M_PI/2.0;
 }
 
 void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
@@ -50,11 +57,16 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 //	double vely = (curr_pose.y - last_pose.y)/ double(lidar_scan.nranges);
 //	double veltheta = (curr_pose.theta - last_pose.theta)/ double(lidar_scan.nranges);
 	
+	double servo_ang_factor = cos(last_servo_angle);
 	//for each laser, calculate the beams to step along
 	for(int i = 0; i < lidar_scan.nranges; ++i)
 	{
-		if(lidar_scan.ranges[i] < 1)
+		double scan_dist = lidar_scan.ranges[i];
+		if(scan_dist < 0)
+			continue;//scan_dist = 10;//assume that the laser has gone at least 15m without hitting anything
+		if(scan_dist < 0.5)
 			continue;
+		scan_dist = scan_dist * servo_ang_factor;
 
 		const SLAM::Pose & start_position = closest_pose;
 		//start_position.x = (last_pose.x + velx * i);
@@ -65,12 +77,11 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 		double cos_ang = cos(angle);
 		double sin_ang = sin(-angle);
 
-		#ifdef SLAM_DEBUG
-		cout << "range: " << lidar_scan.ranges[i] << endl;
-		#endif
+		logDebugMsg("range: " + to_string(lidar_scan.ranges[i]), 3);
+		logDebugMsg("Range being used: " + to_string(scan_dist), 3);
 
-		double endx = start_position.x + lidar_scan.ranges[i] * cos_ang;
-		double endy = start_position.y + lidar_scan.ranges[i] * sin_ang;
+		double endx = start_position.x + scan_dist * cos_ang;
+		double endy = start_position.y + scan_dist * sin_ang;
 
 		double incx = laser_step_size * cos_ang;
 		double incy = laser_step_size * sin_ang;
@@ -81,7 +92,7 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 		size_t last_cell = map.convertToGridCoords(cx, cy);
 		size_t end_cell = map.convertToGridCoords(endx, endy);
 		//ignore the first cell as thats where you are
-		for(int j = 0; j < lidar_scan.ranges[i]/laser_step_size; ++j)
+		for(int j = 0; j < scan_dist/laser_step_size; ++j)
 		{
 			cx += incx;
 			cy += incy;
@@ -100,10 +111,16 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 				break;
 			}
 		}
-		#ifdef SLAM_DEBUG
-		cout << "setting (" << endx << " , " << endy << ") as full" << endl;
-		#endif
-		addAsFull(endx, endy);
+		if(0 < lidar_scan.ranges[i])
+		{
+			logDebugMsg("setting (" + to_string(endx) + " , " + to_string(endy) + ") as full", 2);
+			addAsFull(endx, endy);
+		}
+		else
+		{
+			logDebugMsg("setting (" + to_string(endx) + " , " + to_string(endy) + ") as empty", 2);
+			addAsEmpty(endx, endy);
+		}
 	}
 }
 
