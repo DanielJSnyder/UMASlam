@@ -101,7 +101,6 @@ void Localizer::weightParticles(const laser_t & laser_scan)
 	}
 	boundLikelihoods();
 	setPose();
-	publishPose();
 }
 
 void Localizer::boundLikelihoods()
