@@ -7,7 +7,7 @@ OBJ_PATH = ./obj
 SRC_PATH = ./src
 TEST_PATH = ./unit_tests
 
-all: GridTest MapperTest
+all: GridTest MapperTest Localizer
 
 debug: FLAGS += -DSLAM_DEBUG_LEVEL=$(LEVEL)
 debug: all
@@ -20,6 +20,8 @@ obj/%.o: $(TEST_PATH)/%.cpp
 
 obj/MapDrawer.o: $(SRC_PATH)/MapDrawer.cpp
 	$(CXX) $(FLAGS) $(SFML_FLAGS) -c $^ -o $@
+
+Localizer: $(OBJ_PATH)/Localizer.o
 
 MapperTest: $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/MapperTester.o $(OBJ_PATH)/GridMap.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/MapperTest $(SFML_FLAGS) $(LCM_FLAGS)
