@@ -4,7 +4,8 @@
 using namespace std;
 using namespace common::LCM::types;
 Slam::Slam() : mapper(-50, 50, -50, 50, .5),
-			   localizer(1000)
+			   localizer(1000),
+			   num_mapped_scans(0)
 {
 	llcm.subscribe("SENSOR_LASER", &Slam::handleLaserScan, this);
 	llcm.subscribe("SENSOR_GPS", &Slam::handleGPSData, this);
@@ -21,8 +22,15 @@ void Slam::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
 		mapper.handleLaserScan(rbuf, chan, lidar_scan);
 		localizer.updateMap(mapper.getMapCopy());
 	}
-	localizer.handleLaserScan(rbuf, chan, lidar_scan);
-	mapper.addPose(localizer.getPose());
+	if(num_mapped_scans >15)
+	{
+		localizer.handleLaserScan(rbuf, chan, lidar_scan);
+		mapper.addPose(localizer.getPose());
+	}
+	else
+	{
+		++num_mapped_scans;
+	}
 }
 
 void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,

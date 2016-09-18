@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 int main()
 {
 	Slam s;
@@ -14,13 +13,14 @@ int main()
 	cout << "started slam thread" << endl;
 	
 	MapDrawer drawer;
+	lcm::LCM l;
+	l.subscribe("SLAM_STATE", &MapDrawer::handleState, &drawer);
 	drawer.startDrawThread();
 	cout << "started draw thread" << endl;
 
 	while(1)
 	{
 		drawer.switchMap(s.getMap());
-		cout << " got a new map" << endl;
-		this_thread::sleep_for(std::chrono::milliseconds(500));
+			l.handle();
 	}
 }

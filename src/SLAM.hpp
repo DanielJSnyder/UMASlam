@@ -20,6 +20,8 @@ class Slam
 	std::mutex map_mut;
 	lcm::LCM llcm;
 
+	size_t num_mapped_scans;
+
 public:
 	Slam();
 
