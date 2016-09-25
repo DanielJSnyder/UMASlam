@@ -1,4 +1,5 @@
 #include "SLAM.hpp"
+#include "Constants.hpp"
 #include <iostream>
 
 using namespace std;
@@ -7,10 +8,10 @@ Slam::Slam() : mapper(-50, 50, -50, 50, .5),
 			   localizer(1000),
 			   num_mapped_scans(0)
 {
-	llcm.subscribe("SENSOR_LASER", &Slam::handleLaserScan, this);
-	llcm.subscribe("SENSOR_GPS", &Slam::handleGPSData, this);
-	llcm.subscribe("SENSOR_FOG", &Slam::handleFOGData, this);
-	llcm.subscribe("SENSOR_LASER_SERVO", &Slam::handleServo, this);
+	llcm.subscribe(LASER_SCAN_CHANNEL, &Slam::handleLaserScan, this);
+	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
+	llcm.subscribe(FOG_CHANNEL, &Slam::handleFOGData, this);
+	llcm.subscribe(SERVO_CHANNEL, &Slam::handleServo, this);
 }
 
 void Slam::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
@@ -58,7 +59,7 @@ void Slam::handleState(const lcm::ReceiveBuffer * rbuf,
 					   const string & chan,
 					   const state_t * state)
 {
-	
+	//not implemented, may not be needed
 }
 
 GridMap Slam::getMap() 

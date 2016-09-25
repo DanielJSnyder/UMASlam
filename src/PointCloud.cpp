@@ -1,4 +1,5 @@
 #include "PointCloud.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 using namespace common::LCM::types;
@@ -88,7 +89,7 @@ void PointCloudMaker::extractPointCloud()
 	}
 
 	lcm::LCM lcm;
-	lcm.publish("SLAM_POINT_CLOUD", &pc);
+	lcm.publish(SLAM_POINT_CLOUD_CHANNEL, &pc);
 
 	//remove all scans that were used
 	scans.clear();
