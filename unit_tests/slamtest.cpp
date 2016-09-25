@@ -1,5 +1,6 @@
 #include "../src/SLAM.hpp"
 #include "../src/MapDrawer.hpp"
+#include "../src/Constants.hpp"
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -14,7 +15,7 @@ int main()
 	
 	MapDrawer drawer;
 	lcm::LCM l;
-	l.subscribe("SLAM_STATE", &MapDrawer::handleState, &drawer);
+	l.subscribe(SLAM_STATE_CHANNEL, &MapDrawer::handleState, &drawer);
 	drawer.startDrawThread();
 	cout << "started draw thread" << endl;
 

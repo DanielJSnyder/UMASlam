@@ -1,4 +1,5 @@
 #include "Localizer.hpp"
+#include "Constants.hpp"
 #include "../lcmtypes/state_t.hpp"
 
 using namespace std;
@@ -141,7 +142,7 @@ void Localizer::publishPose() const
 	pub_state.y = last_pose.y;
 	pub_state.yaw = last_pose.theta;
 	lcm::LCM l;
-	l.publish("SLAM_STATE", &pub_state);
+	l.publish(SLAM_STATE_CHANNEL, &pub_state);
 }
 
 void Localizer::fillParticles(const gps_t & gps_data)

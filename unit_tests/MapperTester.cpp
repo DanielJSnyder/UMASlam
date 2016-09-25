@@ -1,13 +1,11 @@
 #include "../src/Mapper.hpp"
 #include "../src/MapDrawer.hpp"
+#include "../src/Constants.hpp"
 
 #include <lcm/lcm-cpp.hpp>
 #include <thread>
 
 using namespace std;
-const char * LASER_SCAN_CHANNEL = "SENSOR_LASER"; 
-const char * STATE_CHANNEL = "STATE_CHANNEL";   
-const char * SERVO_CHANNEL = "SENSOR_LASER_SERVO";
 
 int main()
 {
