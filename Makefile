@@ -7,7 +7,7 @@ OBJ_PATH = ./obj
 SRC_PATH = ./src
 TEST_PATH = ./unit_tests
 
-all: GridTest MapperTest Localizer SlamTest
+all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter
 
 debug: FLAGS += -DSLAM_DEBUG_LEVEL=$(LEVEL) -g3
 debug: all
@@ -33,6 +33,12 @@ MapperTest: $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/MapperTeste
 
 GridTest: $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/GridTests.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/GridTest
+
+PointCloudTest: $(OBJ_PATH)/PointCloud.o $(OBJ_PATH)/point_cloud_test.o
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/pointcloudmaker $(LCM_FLAGS)
+
+PointCloudPrinter: $(OBJ_PATH)/PointCloudPrinter.o
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/printer $(LCM_FLAGS)
 
 test: GridTest MapperTest
 	./bin/GridTest >/dev/null

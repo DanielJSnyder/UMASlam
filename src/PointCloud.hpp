@@ -3,13 +3,15 @@
 
 #include "../lcmtypes/servo_t.hpp"
 #include "../lcmtypes/laser_t.hpp"
+#include "../lcmtypes/point_cloud_t.hpp"
 #include <lcm/lcm-cpp.hpp>
 
 class PointCloudMaker
 {
-	std::vector<laser_t> scans;
-	std::vector<servo_t> servos;
+	std::vector<common::LCM::types::laser_t> scans;
+	std::vector<common::LCM::types::servo_t> servos;
 	int32_t last_dir;
+	common::LCM::types::point_cloud_t publish_pc;
 public:
 	PointCloudMaker();
 
