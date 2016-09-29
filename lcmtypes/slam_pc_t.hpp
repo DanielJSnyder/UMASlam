@@ -10,7 +10,7 @@
 #define __SLAM_LCM_slam_pc_t_hpp__
 
 #include <vector>
-#include "SLAM/LCM/point3D_t.hpp"
+#include "point3D_t.hpp"
 
 namespace SLAM
 {

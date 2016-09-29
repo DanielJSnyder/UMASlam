@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace common::LCM::types;
+using namespace SLAM::LCM;
 
 PointCloudMaker::PointCloudMaker() :
 	scans(0),
@@ -39,8 +40,13 @@ void PointCloudMaker::handleServo(const lcm::ReceiveBuffer * rbuf,
 
 void PointCloudMaker::extractPointCloud()
 {
-	size_t row_size = 0;
-	size_t col_size = 0;
+	//zero out the old point_cloud
+	publish_pc.utime = 0;
+	publish_pc.num_scans = 0;
+	publish_pc.max_num_points = 0;
+	publish_pc.cloud.clear();
+	publish_pc.scan_sizes.clear();
+
 	for(laser_t & l : scans)
 	{
 		//find the servo prior to it
@@ -68,10 +74,8 @@ void PointCloudMaker::extractPointCloud()
 		int64_t delta_time = l.utime - prior_servo.utime;
 		double initial_angle = prior_servo.angle + prior_servo.a_vel * delta_time/10e6;
 
-		//NOT OPTIMAL WAY TO FILL THIS
-		std::vector<double> x_vect;
-		std::vector<double> y_vect;
-		std::vector<double> z_vect;
+		std::vector<point3D_t> points;
+
 		for(int i = 0; i < l.nranges; ++i)
 		{
 			if(l.ranges[i] > 0.5)
@@ -86,27 +90,33 @@ void PointCloudMaker::extractPointCloud()
 				double y = r*sin_ang*sin(phi);
 				double z = r*cos(theta);
 
-				x_vect.push_back(x);
-				y_vect.push_back(y);
-				z_vect.push_back(z);
+				//add the point to the point_cloud
+				point3D_t point;
+				point.utime = l.utime;
+				point.x = x;
+				point.y = y;
+				point.z = z;
+
+				points.push_back(point);
 			}
 			else
 			{
-				x_vect.push_back(0);
-				y_vect.push_back(0);
-				z_vect.push_back(0);
+				point3D_t point;
+				point.utime = l.utime;
+				point.x = 0;
+				point.y = 0;
+				point.z = 0;
+
+				points.push_back(point);
 			}
 		}
-		publish_pc.x.push_back(x_vect);
-		publish_pc.y.push_back(y_vect);
-		publish_pc.z.push_back(z_vect);
-		col_size = l.nranges;
-		++row_size;
-
+		//add the scan to the point_cloud
 		publish_pc.utime = l.utime;
+		publish_pc.num_scans += 1;
+		publish_pc.max_num_points = max((int32_t)points.size(), publish_pc.max_num_points);
+		publish_pc.cloud.push_back(points);
+		publish_pc.scan_sizes.push_back(points.size());
 	}
-	publish_pc.row_size = row_size;
-	publish_pc.col_size = col_size;
 
 	lcm::LCM lcm;
 	lcm.publish(SLAM_POINT_CLOUD_CHANNEL, &publish_pc);
