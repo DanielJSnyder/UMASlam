@@ -1,0 +1,8 @@
+package SLAM.LCM;
+
+struct scan_line_t
+{
+	int64_t utime;
+	point3D_t scan_line[scan_size];
+	int32_t scan_size;
+}

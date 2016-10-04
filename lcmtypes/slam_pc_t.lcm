@@ -3,8 +3,6 @@ package SLAM.LCM;
 struct slam_pc_t
 {
 	int64_t utime;
-	int64_t num_scans;
-	int32_t max_num_points;
-	point3D_t cloud[num_scans][max_num_points];
-	int32_t scan_sizes[num_scans];
+	int32_t num_scans;
+	scan_line_t cloud[num_scans];
 }
