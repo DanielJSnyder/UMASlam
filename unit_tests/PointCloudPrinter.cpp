@@ -15,7 +15,7 @@ void handlePC(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const s
 	{
 		for(size_t j = 0; j < pc->cloud[i].size(); ++j)
 		{
-			cout << pc->cloud[i][j].x << '\t' << pc->cloud[i][j].y << '\t' << pc->cloud[i][j].z << endl;
+			cout << pc->cloud[i].scan_line[j].x << '\t' << pc->cloud[i].scan_line[j].y << '\t' << pc->cloud[i].scan_line[j].z << endl;
 		}
 	}
 	cout << endl;

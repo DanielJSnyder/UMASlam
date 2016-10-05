@@ -7,26 +7,24 @@
 #include <string>
 #include "../lcmtypes/laser_t.hpp"
 #include "../lcmtypes/state_t.hpp"
-#include "../lcmtypes/servo_t.hpp"
+#include "../lcmtypes/slam_pc_t.hpp"
 
 class Mapper
 {
 public:
 	Mapper(double mnx, double mxx, double mny, double mxy, double ss);
 
-	void handleLaserScan(const lcm::ReceiveBuffer * rbuf, 
-						 const std::string & chan,
-						 const common::LCM::types::laser_t * lidar_scan);
-
-	void handleServo(const lcm::ReceiveBuffer * rbuf,
-					 const std::string & chan,
-					 const common::LCM::types::servo_t * servo);
+	void handlePointCloud(const lcm::ReceiveBuffer * rbuf,
+						  const std::string & chan,
+						  const SLAM::LCM::slam_pc_t * pc);
 
 	void handleState(const lcm::ReceiveBuffer * rbuf,
 					 const std::string & chan,
 					 const common::LCM::types::state_t * state);
 
-	void addToMap(const common::LCM::types::laser_t & lidar_scan);
+	void addToMap(const SLAM::LCM::slam_pc_t & pc);
+
+	void addPointToMap(const SLAM::Pose & curr_pose, const SLAM::LCM::point3D_t & local_coords_end_point)
 
 	GridMap getMapCopy() const;
 
@@ -39,7 +37,6 @@ private:
 	std::vector<SLAM::Pose> poses;
 	GridMap map;
 	double laser_step_size;
-	double last_servo_angle;
 
 	const int8_t FULL_INC = 10;
 	const int8_t EMPTY_INC = -1;

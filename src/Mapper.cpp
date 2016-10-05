@@ -13,20 +13,12 @@ Mapper::Mapper(double mnx, double mxx, double mny, double mxy, double ss) :
 	poses.push_back(SLAM::Pose());
 }
 
-void Mapper::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
-							 const string & chan,
-							 const laser_t * lidar_scan)
+void Mapper::handlePointCloud(const lcm::ReceivBuffer * rbuf,
+							  const string & chan,
+							  const slam_pc_t * pc)
 {
-	logDebugMsg("adding a laser scan to the map", 1);
-	this->addToMap(*lidar_scan);
-}
-
-void Mapper::handleServo(const lcm::ReceiveBuffer * rbuf,
-						 const string & chan,
-						 const servo_t * servo)
-{
-	logDebugMsg("setting last servo angle to: " + to_string(servo->angle + M_PI/2.0), 1);
-	last_servo_angle = servo->angle + M_PI/2.0;
+	SLAM::logDebugMsg("adding a slam point cloud to the map", 1);
+	addToMap(*pc);
 }
 
 void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
@@ -36,10 +28,9 @@ void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
 	this->addPose(SLAM::Pose(state->x, state->y, state->yaw, state->utime));
 }
 
-void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
+SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 {
-
-	//find the pose closest to the lidar scan (assume no movement during a single laser scan due to large square size
+	//find the pose closest to the time (assume movement between poses is neglegible)
 	SLAM::Pose closest_pose = poses.front();
 	int64_t t_diff = abs(closest_pose.utime - lidar_scan.utime);
 	for(const SLAM::Pose p : poses)
@@ -51,77 +42,64 @@ void Mapper::addToMap(const common::LCM::types::laser_t & lidar_scan)
 			t_diff = diff;
 		}
 	}
+	return closest_pose;
+}
 
-	//calculate the velocity between the last two poses
-//	double velx = (curr_pose.x - last_pose.x)/ double(lidar_scan.nranges);
-//	double vely = (curr_pose.y - last_pose.y)/ double(lidar_scan.nranges);
-//	double veltheta = (curr_pose.theta - last_pose.theta)/ double(lidar_scan.nranges);
-	
-	double servo_ang_factor = cos(last_servo_angle);
-	//for each laser, calculate the beams to step along
-	for(int i = 0; i < lidar_scan.nranges; ++i)
+void Mapper::addToMap(const slam_pc_t & pc)
+{
+	for(int scan_num = 0; scan_num < pc.num_scans; ++scan_num)
 	{
-		double scan_dist = lidar_scan.ranges[i];
-		if(scan_dist < 0)
-			continue;//scan_dist = 10;//assume that the laser has gone at least 15m without hitting anything
-		if(scan_dist < 0.5)
-			continue;
-		scan_dist = scan_dist * servo_ang_factor;
-
-		const SLAM::Pose & start_position = closest_pose;
-		//start_position.x = (last_pose.x + velx * i);
-		//start_position.y = (last_pose.y + vely * i);
-		//start_position.theta = (last_pose.theta + veltheta * i);
-
-		double angle = start_position.theta + lidar_scan.rad0 + lidar_scan.radstep * i;
-		double cos_ang = cos(angle);
-		double sin_ang = sin(-angle);
-
-		logDebugMsg("range: " + to_string(lidar_scan.ranges[i]), 3);
-		logDebugMsg("Range being used: " + to_string(scan_dist), 3);
-
-		double endx = start_position.x + scan_dist * cos_ang;
-		double endy = start_position.y + scan_dist * sin_ang;
-
-		double incx = laser_step_size * cos_ang;
-		double incy = laser_step_size * sin_ang;
-
-		double cx = start_position.x;
-		double cy = start_position.y;
-
-		size_t last_cell = map.convertToGridCoords(cx, cy);
-		size_t end_cell = map.convertToGridCoords(endx, endy);
-		//ignore the first cell as thats where you are
-		for(int j = 0; j < scan_dist/laser_step_size; ++j)
+		SLAM::Pose closest_pose = findAssociatedPose(pc.cloud[scan_num].utime);
+		for(int point_num = 0; point_num < pc.cloud[scan_num].scan_size; ++point_num)
 		{
-			cx += incx;
-			cy += incy;
-			size_t cell = map.convertToGridCoords(cx, cy);
-
-			if(last_cell != cell && cell != end_cell)
-			{
-				if(cell != end_cell)
-				{
-					addAsEmpty(cx, cy);
-				}
-				last_cell = cell;
-			}
-			else if(end_cell == cell)
-			{
-				break;
-			}
-		}
-		if(0 < lidar_scan.ranges[i])
-		{
-			logDebugMsg("setting (" + to_string(endx) + " , " + to_string(endy) + ") as full", 2);
-			addAsFull(endx, endy);
-		}
-		else
-		{
-			logDebugMsg("setting (" + to_string(endx) + " , " + to_string(endy) + ") as empty", 2);
-			addAsEmpty(endx, endy);
+			addPointToMap(closest_pose, pc.cloud[scan_num].scan_line[point_num]);
 		}
 	}
+}
+
+void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & local_coords_end_point)
+{
+	//get the global coordinates
+	double x = local_coords_end_point.x;
+	double y = local_coords_end_point.y;
+	double z = local_coords_end_point.z;
+
+	SLAM::rotateIntoGlobalCoordsInPlace(x,y,z,start_pose);
+
+	//only handling 2d case
+	double dx = x - start_pose.x;
+	double dy = y - start_pose.y;
+	double total_dist = std::sqrt(dx * dx + dy * dy);
+
+	int max_num_steps = std::ceil(total_dist/laser_step_size);
+	
+	size_t end_cell = map.convertToGridCoords(x, y);
+
+	size_t prev_cell = map.convertToGridCoords(start_pose.x, start_pose.y);
+
+	for(int i = 0; i < max_num_step && prev_cell != end_cell; ++i)
+	{
+		//calculate coords based on similar triangles
+		double dist_ratio = i * laser_step_size/total_dist;
+		double curr_x = start_position.x + (dx * dist_ratio);
+		double curr_y = start_position.y + (dy * dist_ratio);
+
+		size_t cell_num = map.convertToGridCoords(curr_x, curr_y);
+		if(cell_num != prev_cell)
+		{
+			if(cell_num == end_cell)
+			{
+				addAsFull(curr_x, curr_y);
+				prev_cell = end_cell;
+			}
+			else
+			{
+				addAsEmpty(curr_x, curr_y);
+				prev_cell = cell_num;
+			}
+		}
+	}
+
 }
 
 void Mapper::addPose(const SLAM::Pose & pose)

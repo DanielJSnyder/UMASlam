@@ -43,9 +43,7 @@ void PointCloudMaker::extractPointCloud()
 	//zero out the old point_cloud
 	publish_pc.utime = 0;
 	publish_pc.num_scans = 0;
-	publish_pc.max_num_points = 0;
 	publish_pc.cloud.clear();
-	publish_pc.scan_sizes.clear();
 
 	for(laser_t & l : scans)
 	{
@@ -65,22 +63,27 @@ void PointCloudMaker::extractPointCloud()
 		}
 		if(prior_servo.dir == 0)
 		{
-			logDebugMsg("ERROR: PRIOR SERVO NOT FOUND", -1);
+			SLAM::logDebugMsg("ERROR: PRIOR SERVO NOT FOUND", -1);
 			continue;
 		}
+
 
 		//assume that the utime is the start of the lidar scan
 		//calculate at what angle the first lidar point was received
 		int64_t delta_time = l.utime - prior_servo.utime;
 		double initial_angle = prior_servo.angle + prior_servo.a_vel * delta_time/10e6;
 
-		std::vector<point3D_t> points;
+		//create the scan line being built
+		scan_line_t curr_scan;
+		curr_scan.utime = l.utime;
 
 		for(int i = 0; i < l.nranges; ++i)
 		{
+			point3D_t point;
+			point.utime = l.utime;
 			if(l.ranges[i] > 0.5)
 			{
-				logDebugMsg("LOGGING A RANGE GREATER THAN 0.5m", 1);
+				SLAM::logDebugMsg("LOGGING A RANGE GREATER THAN 0.5m", 1);
 				double phi = l.radstep * (double)i + l.rad0;
 				double theta = initial_angle;//phi is off of z axis
 				double r = l.ranges[i];
@@ -91,31 +94,22 @@ void PointCloudMaker::extractPointCloud()
 				double z = r*cos(theta);
 
 				//add the point to the point_cloud
-				point3D_t point;
-				point.utime = l.utime;
 				point.x = x;
 				point.y = y;
 				point.z = z;
-
-				points.push_back(point);
 			}
 			else
 			{
-				point3D_t point;
-				point.utime = l.utime;
 				point.x = 0;
 				point.y = 0;
 				point.z = 0;
-
-				points.push_back(point);
 			}
+
+			curr_scan.scan_line.push_back(point);
 		}
+
 		//add the scan to the point_cloud
-		publish_pc.utime = l.utime;
-		publish_pc.num_scans += 1;
-		publish_pc.max_num_points = max((int32_t)points.size(), publish_pc.max_num_points);
-		publish_pc.cloud.push_back(points);
-		publish_pc.scan_sizes.push_back(points.size());
+		publish_pc.cloud.push_back(curr_scan);
 	}
 
 	lcm::LCM lcm;
