@@ -6,25 +6,25 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __SLAM_LCM_slam_pc_t_hpp__
-#define __SLAM_LCM_slam_pc_t_hpp__
+#ifndef __SLAM_LCM_scan_line_t_hpp__
+#define __SLAM_LCM_scan_line_t_hpp__
 
 #include <vector>
-#include "SLAM/LCM/scan_line_t.hpp"
+#include "SLAM/LCM/point3D_t.hpp"
 
 namespace SLAM
 {
 namespace LCM
 {
 
-class slam_pc_t
+class scan_line_t
 {
     public:
         int64_t    utime;
 
-        int32_t    num_scans;
+        int32_t    scan_size;
 
-        std::vector< SLAM::LCM::scan_line_t > cloud;
+        std::vector< SLAM::LCM::point3D_t > scan_line;
 
     public:
         /**
@@ -62,7 +62,7 @@ class slam_pc_t
         inline static int64_t getHash();
 
         /**
-         * Returns "slam_pc_t"
+         * Returns "scan_line_t"
          */
         inline static const char* getTypeName();
 
@@ -73,7 +73,7 @@ class slam_pc_t
         inline static int64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int slam_pc_t::encode(void *buf, int offset, int maxlen) const
+int scan_line_t::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = getHash();
@@ -87,7 +87,7 @@ int slam_pc_t::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int slam_pc_t::decode(const void *buf, int offset, int maxlen)
+int scan_line_t::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -102,80 +102,80 @@ int slam_pc_t::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int slam_pc_t::getEncodedSize() const
+int scan_line_t::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t slam_pc_t::getHash()
+int64_t scan_line_t::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* slam_pc_t::getTypeName()
+const char* scan_line_t::getTypeName()
 {
-    return "slam_pc_t";
+    return "scan_line_t";
 }
 
-int slam_pc_t::_encodeNoHash(void *buf, int offset, int maxlen) const
+int scan_line_t::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
     tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->utime, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->num_scans, 1);
+    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->scan_size, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    for (int a0 = 0; a0 < this->num_scans; a0++) {
-        tlen = this->cloud[a0]._encodeNoHash(buf, offset + pos, maxlen - pos);
+    for (int a0 = 0; a0 < this->scan_size; a0++) {
+        tlen = this->scan_line[a0]._encodeNoHash(buf, offset + pos, maxlen - pos);
         if(tlen < 0) return tlen; else pos += tlen;
     }
 
     return pos;
 }
 
-int slam_pc_t::_decodeNoHash(const void *buf, int offset, int maxlen)
+int scan_line_t::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
     tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->utime, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->num_scans, 1);
+    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->scan_size, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    this->cloud.resize(this->num_scans);
-    for (int a0 = 0; a0 < this->num_scans; a0++) {
-        tlen = this->cloud[a0]._decodeNoHash(buf, offset + pos, maxlen - pos);
+    this->scan_line.resize(this->scan_size);
+    for (int a0 = 0; a0 < this->scan_size; a0++) {
+        tlen = this->scan_line[a0]._decodeNoHash(buf, offset + pos, maxlen - pos);
         if(tlen < 0) return tlen; else pos += tlen;
     }
 
     return pos;
 }
 
-int slam_pc_t::_getEncodedSizeNoHash() const
+int scan_line_t::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
     enc_size += __int64_t_encoded_array_size(NULL, 1);
     enc_size += __int32_t_encoded_array_size(NULL, 1);
-    for (int a0 = 0; a0 < this->num_scans; a0++) {
-        enc_size += this->cloud[a0]._getEncodedSizeNoHash();
+    for (int a0 = 0; a0 < this->scan_size; a0++) {
+        enc_size += this->scan_line[a0]._getEncodedSizeNoHash();
     }
     return enc_size;
 }
 
-int64_t slam_pc_t::_computeHash(const __lcm_hash_ptr *p)
+int64_t scan_line_t::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == slam_pc_t::getHash)
+        if(fp->v == scan_line_t::getHash)
             return 0;
-    const __lcm_hash_ptr cp = { p, (void*)slam_pc_t::getHash };
+    const __lcm_hash_ptr cp = { p, (void*)scan_line_t::getHash };
 
-    int64_t hash = 0xeeecc32c1610686aLL +
-         SLAM::LCM::scan_line_t::_computeHash(&cp);
+    int64_t hash = 0xe41f6044c45e3e6dLL +
+         SLAM::LCM::point3D_t::_computeHash(&cp);
 
     return (hash<<1) + ((hash>>63)&1);
 }
