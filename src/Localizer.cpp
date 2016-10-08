@@ -1,9 +1,11 @@
 #include "Localizer.hpp"
 #include "Constants.hpp"
 #include "../lcmtypes/state_t.hpp"
+#include "Utilities.hpp"
 
 using namespace std;
 using namespace common::LCM::types;
+using namespace SLAM::LCM;
 
 Particle::Particle() : x(0), y(0), theta(0), likelihood(0)
 {
@@ -65,37 +67,36 @@ void Localizer::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 	fillParticles((fog_data->data) - initial_theta);
 }
 
-void Localizer::handleLaserScan(const lcm::ReceiveBuffer * rbuf,
-								const string & chan,
-								const laser_t * laser_scan)
+void Localizer::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
+								 const string & chan,
+								 const slam_pc_t * pc)
 {
-	weightParticles(*laser_scan);
+	weightParticles(*pc);
 }
 
-void Localizer::weightParticles(const laser_t & laser_scan)
+void Localizer::weightParticles(const slam_pc_t & pc)
 {
 	for(Particle & p: particles)
 	{
-		Particle curr_particle  = p;
 		double curr_particle_likelihood = 0;
-		for(int i = 0; i < laser_scan.nranges; ++i)
-		{
-			//find the endpoint for the laser scan
-			double scan_dist = laser_scan.ranges[i];
-			if(scan_dist < 0.5)//don't do anything if the laser point is close to the boat in case of an errant scan
-				continue;
+		SLAM::Pose particle_pose(p.x, p.y,p.theta, 0);
 
-			double angle = curr_particle.theta + laser_scan.rad0 + laser_scan.radstep * i;
-			double cos_ang = cos(angle);
-			double sin_ang = sin(-angle);
-			
-			double endx = curr_particle.x + scan_dist * cos_ang;
-			double endy = curr_particle.y + scan_dist * sin_ang;
-			
-			//just do simple hit or miss
-			if(map.at(endx, endy) > 150)//if the square is considered full, add to likelihood
+		//for each scan line and each end point do hit or miss
+		for(size_t i = 0; i < pc.cloud.size(); ++i)
+		{
+			for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
 			{
-				curr_particle_likelihood += LIKELIHOOD_INCREMENT_VALUE;
+				double x = pc.cloud[i].scan_line[j].x;
+				double y = pc.cloud[i].scan_line[j].y;
+				double z = pc.cloud[i].scan_line[j].z;
+			
+				SLAM::rotateIntoGlobalCoordsInPlace(x,y,z, particle_pose);
+				
+				//just do simple hit or miss
+				if(map.at(x, y) > 150)//if the square is considered full, add to likelihood
+				{
+					curr_particle_likelihood += LIKELIHOOD_INCREMENT_VALUE;
+				}
 			}
 		}
 		p.likelihood = curr_particle_likelihood;

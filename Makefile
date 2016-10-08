@@ -25,10 +25,10 @@ Localizer: $(OBJ_PATH)/Localizer.o
 
 Slam: $(OBJ_PATH)/SLAM.o
 
-SlamTest: $(OBJ_PATH)/SLAM.o $(OBJ_PATH)/Localizer.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/slamtest.o $(OBJ_PATH)/CoordTransformer.o
+SlamTest: $(OBJ_PATH)/SLAM.o $(OBJ_PATH)/Localizer.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/slamtest.o $(OBJ_PATH)/CoordTransformer.o $(OBJ_PATH)/Utilities.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/SlamTest $(SFML_FLAGS) $(LCM_FLAGS)
 
-MapperTest: $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/MapperTester.o $(OBJ_PATH)/GridMap.o
+MapperTest: $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/MapperTester.o $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/Utilities.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/MapperTest $(SFML_FLAGS) $(LCM_FLAGS)
 
 GridTest: $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/GridTests.o

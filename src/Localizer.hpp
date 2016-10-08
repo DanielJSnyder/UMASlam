@@ -3,7 +3,7 @@
 
 #include "../lcmtypes/gps_t.hpp"
 #include "../lcmtypes/fog_t.hpp"
-#include "../lcmtypes/laser_t.hpp"
+#include "../lcmtypes/slam_pc_t.hpp"
 #include "GridMap.hpp"
 #include "Pose.hpp"
 #include "CoordTransformer.hpp"
@@ -36,9 +36,9 @@ public:
 					   const std::string & chan,
 					   const common::LCM::types::fog_t * fog_data);
 
-	void handleLaserScan(const lcm::ReceiveBuffer * rbuf,
-						 const std::string & chan,
-						 const common::LCM::types::laser_t * laser_scan);
+	void handlePointCloud(const lcm::ReceiveBuffer * rbuf,
+						  const std::string & chan,
+						  const SLAM::LCM::slam_pc_t * pc);
 
 	SLAM::Pose getPose() const;
 
@@ -48,7 +48,7 @@ private:
 	void fillParticles(const common::LCM::types::gps_t & gps_data);
 	void fillParticles(double theta);
 
-	void weightParticles(const common::LCM::types::laser_t & laser_scan);
+	void weightParticles(const SLAM::LCM::slam_pc_t & pc);
 
 	void boundLikelihoods();
 	void setPose();

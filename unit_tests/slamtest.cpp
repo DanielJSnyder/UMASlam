@@ -22,6 +22,7 @@ int main()
 	while(1)
 	{
 		drawer.switchMap(s.getMap());
+		cout << "switching the map" << endl;
 			l.handle();
 	}
 }

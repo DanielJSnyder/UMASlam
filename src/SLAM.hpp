@@ -3,10 +3,9 @@
 
 #include "Localizer.hpp"
 #include "Mapper.hpp"
-#include "../lcmtypes/laser_t.hpp"
+#include "../lcmtypes/slam_pc_t.hpp"
 #include "../lcmtypes/fog_t.hpp"
 #include "../lcmtypes/gps_t.hpp"
-#include "../lcmtypes/servo_t.hpp"
 #include "../lcmtypes/state_t.hpp"
 
 #include <string>
@@ -25,13 +24,9 @@ class Slam
 public:
 	Slam();
 
-	void handleLaserScan(const lcm::ReceiveBuffer * rbuf, 
-						 const std::string & chan,
-						 const common::LCM::types::laser_t * lidar_scan);
-
-	void handleServo(const lcm::ReceiveBuffer * rbuf,
-					 const std::string & chan,
-					 const common::LCM::types::servo_t * servo);
+	void handlePointCloud(const lcm::ReceiveBuffer * rbuf, 
+						  const std::string & chan,
+						  const SLAM::LCM::slam_pc_t * pc);
 
 	void handleState(const lcm::ReceiveBuffer * rbuf,
 					 const std::string & chan,
