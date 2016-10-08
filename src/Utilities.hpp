@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <utility>
+#include "Pose.hpp"
 
 namespace SLAM
 {

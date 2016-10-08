@@ -24,13 +24,14 @@ public:
 
 	void addToMap(const SLAM::LCM::slam_pc_t & pc);
 
-	void addPointToMap(const SLAM::Pose & curr_pose, const SLAM::LCM::point3D_t & local_coords_end_point)
+	void addPointToMap(const SLAM::Pose & curr_pose, const SLAM::LCM::point3D_t & local_coords_end_point);
 
 	GridMap getMapCopy() const;
 
 	void addPose(const SLAM::Pose & pose);
 
 private:
+	SLAM::Pose findAssociatedPose(int64_t time);
 	void addAsEmpty(double x, double y);
 	void addAsFull(double x, double y);
 	

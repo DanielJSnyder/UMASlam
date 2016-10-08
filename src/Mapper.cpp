@@ -5,6 +5,7 @@
 
 using namespace std;
 using namespace common::LCM::types;
+using namespace SLAM::LCM;
 
 Mapper::Mapper(double mnx, double mxx, double mny, double mxy, double ss) :
 	map(mnx, mxx, mny, mxy, ss),
@@ -13,7 +14,7 @@ Mapper::Mapper(double mnx, double mxx, double mny, double mxy, double ss) :
 	poses.push_back(SLAM::Pose());
 }
 
-void Mapper::handlePointCloud(const lcm::ReceivBuffer * rbuf,
+void Mapper::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 							  const string & chan,
 							  const slam_pc_t * pc)
 {
@@ -32,10 +33,10 @@ SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 {
 	//find the pose closest to the time (assume movement between poses is neglegible)
 	SLAM::Pose closest_pose = poses.front();
-	int64_t t_diff = abs(closest_pose.utime - lidar_scan.utime);
+	int64_t t_diff = abs(closest_pose.utime - time);
 	for(const SLAM::Pose p : poses)
 	{
-		int64_t diff = abs(p.utime - lidar_scan.utime);
+		int64_t diff = abs(p.utime - time);
 		if(diff < t_diff)
 		{
 			closest_pose = p;
@@ -77,12 +78,12 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 
 	size_t prev_cell = map.convertToGridCoords(start_pose.x, start_pose.y);
 
-	for(int i = 0; i < max_num_step && prev_cell != end_cell; ++i)
+	for(int i = 0; i < max_num_steps && prev_cell != end_cell; ++i)
 	{
 		//calculate coords based on similar triangles
 		double dist_ratio = i * laser_step_size/total_dist;
-		double curr_x = start_position.x + (dx * dist_ratio);
-		double curr_y = start_position.y + (dy * dist_ratio);
+		double curr_x = start_pose.x + (dx * dist_ratio);
+		double curr_y = start_pose.y + (dy * dist_ratio);
 
 		size_t cell_num = map.convertToGridCoords(curr_x, curr_y);
 		if(cell_num != prev_cell)

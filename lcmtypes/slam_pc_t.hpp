@@ -10,7 +10,7 @@
 #define __SLAM_LCM_slam_pc_t_hpp__
 
 #include <vector>
-#include "SLAM/LCM/scan_line_t.hpp"
+#include "scan_line_t.hpp"
 
 namespace SLAM
 {

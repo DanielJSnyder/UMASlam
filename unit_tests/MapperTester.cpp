@@ -13,8 +13,7 @@ int main()
 	Mapper mapper(-30, 30, -30, 30, .25);
 
 	lcm::LCM lcm;
-	lcm.subscribe(LASER_SCAN_CHANNEL, &Mapper::handleLaserScan, &mapper);
-	lcm.subscribe(SERVO_CHANNEL, &Mapper::handleServo, &mapper);
+	lcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Mapper::handlePointCloud, &mapper);
 	lcm.subscribe(STATE_CHANNEL, &Mapper::handleState, &mapper);
 	
 	MapDrawer drawer;

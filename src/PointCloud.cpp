@@ -108,10 +108,12 @@ void PointCloudMaker::extractPointCloud()
 			curr_scan.scan_line.push_back(point);
 		}
 
+		curr_scan.scan_size = curr_scan.scan_line.size();
 		//add the scan to the point_cloud
 		publish_pc.cloud.push_back(curr_scan);
 	}
 
+	publish_pc.num_scans = publish_pc.cloud.size();
 	lcm::LCM lcm;
 	lcm.publish(SLAM_POINT_CLOUD_CHANNEL, &publish_pc);
 
