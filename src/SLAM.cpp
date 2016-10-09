@@ -22,7 +22,7 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 	{
 		std::lock_guard<std::mutex> map_lock(map_mut);
 		mapper.handlePointCloud(rbuf, chan, pc);
-		localizer.updateMap(mapper.getMapCopy());
+		localizer.updateMap(mapper.getMap());
 	}
 	if(num_mapped_scans >15)
 	{
@@ -56,10 +56,10 @@ void Slam::handleState(const lcm::ReceiveBuffer * rbuf,
 	//not implemented, may not be needed
 }
 
-GridMap Slam::getMap() 
+const GridMap& Slam::getMap() 
 {
 	std::lock_guard<std::mutex> map_lock(map_mut);
-	return mapper.getMapCopy();
+	return mapper.getMap();
 }
 
 void Slam::run()

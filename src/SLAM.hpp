@@ -40,7 +40,7 @@ public:
 					   const std::string & chan,
 					   const common::LCM::types::fog_t * fog_data);
 
-	GridMap getMap();
+	const GridMap& getMap();
 
 	void run();
 };

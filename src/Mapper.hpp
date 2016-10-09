@@ -28,6 +28,8 @@ public:
 
 	GridMap getMapCopy() const;
 
+	const GridMap& getMap() const;
+
 	void addPose(const SLAM::Pose & pose);
 
 private:

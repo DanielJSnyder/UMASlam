@@ -136,3 +136,8 @@ GridMap Mapper::getMapCopy() const
 {
 	return map;
 }
+
+const GridMap& Mapper::getMap() const
+{
+	return map;
+}
