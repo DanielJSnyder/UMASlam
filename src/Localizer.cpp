@@ -11,11 +11,8 @@ Particle::Particle() : x(0), y(0), theta(0), likelihood(0)
 {
 }
 
-Localizer::Localizer(int num_particles) : particles(num_particles),
-										  x_gps_dist(0,1.5),
-										  y_gps_dist(0, 1.5),
-										  theta_fog_dist(0, 0.5),
-										  fog_initialized(false)
+Localizer::Localizer(int num_particles) : 
+	Localizer(num_particles ,DEFAULT_GPS_SIGMA,DEFAULT_FOG_SIGMA)
 {
 }
 
@@ -93,15 +90,15 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 				SLAM::rotateIntoGlobalCoordsInPlace(x,y,z, particle_pose);
 				
 				//just do simple hit or miss
-				if(map.at(x, y) > 150)//if the square is considered full, add to likelihood
+				if(map.at(x, y) > HIT_THRESHOLD)//if the square is considered full, add to likelihood
 				{
-					curr_particle_likelihood += LIKELIHOOD_INCREMENT_VALUE;
+					curr_particle_likelihood += HIT_LIKELIHOOD_INC_VALUE;
 				}
 			}
 		}
 		p.likelihood = curr_particle_likelihood;
 	}
-	boundLikelihoods();
+	//boundLikelihoods();
 	setPose();
 	publishPose();
 }

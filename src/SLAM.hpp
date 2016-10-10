@@ -43,5 +43,8 @@ public:
 	const GridMap& getMap();
 
 	void run();
+
+private:
+	bool end_flag; //used for signaling the end for profiling
 };
 #endif

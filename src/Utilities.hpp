@@ -1,6 +1,8 @@
 #ifndef __SLAM_UTILITES_HPP__
 #define __SLAM_UTILITES_HPP__
 
+
+#include <cmath>
 #include "Pose.hpp"
 
 namespace SLAM
@@ -20,7 +22,13 @@ void logDebugMsg(const Printable & msg, int level)
 	#endif
 }
 
-void rotateIntoGlobalCoordsInPlace(double & x, double & y, double & z, const SLAM::Pose & global_pose);
-
+static void rotateIntoGlobalCoordsInPlace(double & x, double & y, double & z, const SLAM::Pose & global_pose)
+{
+	double temp = x;
+	double cos_ang = std::cos(global_pose.theta);
+	double sin_ang = std::sin(global_pose.theta);
+	x = x * cos_ang - y * sin_ang;
+	y = temp * sin_ang + y * cos_ang;
+}
 }
 #endif

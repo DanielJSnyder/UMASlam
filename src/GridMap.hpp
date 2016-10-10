@@ -12,8 +12,6 @@
 // |___>	y
 class GridMap
 {
-	const double FULL_INCREMENT = 1.0;
-	const double EMPTY_DECREMENT = -1.0;
 public:
 	GridMap();
 
@@ -22,13 +20,37 @@ public:
 	GridMap(const GridMap& gm);
 	const GridMap & operator=(const GridMap & gm);
 
-	uint8_t at(double x, double y) const;
+	std::size_t convertToGridCoords(double x, double y) const
+	{
+		//map is filled in this manner
+		/*
+			index 0 is the cell who's bottom left corner is at min_x, min_y
+			index 1 is the cell who's bottom left_corner is at min_x + square_size_meters, min_y
+
+		*/
+
+		//calculate the distance from the bottom left of the map
+		double tx = x - min_x;
+		double ty = y - min_y;
+
+		std::size_t x_idx = tx/square_size_meters;
+		std::size_t y_idx = ty/square_size_meters;
+
+		return (x_idx + y_idx * cells_per_row);
+	}
+
+	uint8_t at(double x, double y) const
+	{
+		std::size_t idx = convertToGridCoords(x,y);
+		return map[idx];
+	}
 
 	//accesses the vector 
-	uint8_t& at(double x, double y);
-
-	//helper function
-	std::size_t convertToGridCoords(double x, double y) const;
+	uint8_t& at(double x, double y)
+	{
+		std::size_t idx = convertToGridCoords(x,y);
+		return map[idx];
+	}
 
 	double getMaxX() const
 	{
@@ -59,7 +81,10 @@ public:
 		return map.size();
 	}
 
-	const uint8_t& operator[](std::size_t idx) const;
+	const uint8_t& operator[](std::size_t idx) const 
+	{
+		return map[idx];
+	}
 private:
 	//actual map containing the probabilities 
 	//idx 0 is bottom left (-y, -x)

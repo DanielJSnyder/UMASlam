@@ -65,7 +65,6 @@ private:
 	std::normal_distribution<> theta_fog_dist;
 	double last_theta;
 	double initial_theta;
-	const double LIKELIHOOD_INCREMENT_VALUE = 1.0;//arbitrary for now
 	bool fog_initialized;
 };
 
