@@ -27,8 +27,8 @@ static void rotateIntoGlobalCoordsInPlace(double & x, double & y, double & z, co
 	double temp = x;
 	double cos_ang = std::cos(global_pose.theta);
 	double sin_ang = std::sin(global_pose.theta);
-	x = x * cos_ang - y * sin_ang;
-	y = temp * sin_ang + y * cos_ang;
+	x = (x * cos_ang - y * sin_ang) + global_pose.x;
+	y = (temp * sin_ang + y * cos_ang) + global_pose.y;
 }
 }
 #endif
