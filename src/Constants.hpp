@@ -30,4 +30,8 @@
 //Data sheet value 0.5
 #define DEFAULT_FOG_SIGMA 0.5
 
+//mapping constants
+#define FULL_SQUARE_INC 1.0
+#define EMPTY_SQUARE_INC (-1.0)
+
 #endif

@@ -3,6 +3,7 @@
 
 #include "GridMap.hpp"
 #include "Pose.hpp"
+#include "Constants.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include <string>
 #include "../lcmtypes/laser_t.hpp"
@@ -41,8 +42,8 @@ private:
 	GridMap map;
 	double laser_step_size;
 
-	const int8_t FULL_INC = 10;
-	const int8_t EMPTY_INC = -1;
+	const int8_t FULL_INC = FULL_SQUARE_INC;
+	const int8_t EMPTY_INC = EMPTY_SQUARE_INC;
 };
 
 #endif
