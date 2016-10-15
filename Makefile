@@ -9,7 +9,7 @@ OBJ_PATH = ./obj
 SRC_PATH = ./src
 TEST_PATH = ./unit_tests
 
-all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter
+all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter ParticlePrinter
 
 optimized: FLAGS += $(OPTIMIZATION_FLAGS)
 optimized: all
@@ -46,7 +46,10 @@ PointCloudTest: $(OBJ_PATH)/PointCloud.o $(OBJ_PATH)/point_cloud_test.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/pointcloudmaker $(LCM_FLAGS)
 
 PointCloudPrinter: $(OBJ_PATH)/PointCloudPrinter.o
-	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/printer $(LCM_FLAGS)
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/PointCloudPrinter $(LCM_FLAGS)
+
+ParticlePrinter: $(OBJ_PATH)/ParticlePrinter.o
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/ParticlePrinter $(LCM_FLAGS)
 
 test: GridTest MapperTest
 	./bin/GridTest >/dev/null

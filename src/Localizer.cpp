@@ -2,6 +2,7 @@
 #include "Constants.hpp"
 #include "../lcmtypes/state_t.hpp"
 #include "Utilities.hpp"
+#include "../lcmtypes/particles_t.hpp"
 
 using namespace std;
 using namespace common::LCM::types;
@@ -57,11 +58,11 @@ void Localizer::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 {
 	if(!fog_initialized)
 	{
-		initial_theta = fog_data->data;
+		initial_theta = DEG_TO_RAD(fog_data->data);
 		fog_initialized = true;
 	}
 
-	fillParticles((fog_data->data) - initial_theta);
+	fillParticles(DEG_TO_RAD(fog_data->data) - initial_theta);
 }
 
 void Localizer::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
@@ -79,8 +80,10 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 		SLAM::Pose particle_pose(p.x, p.y,p.theta, 0);
 
 		//for each scan line and each end point do hit or miss
+		SLAM::logDebugMsg("point_cloud size: " + to_string(pc.cloud.size()) + "\n", 1);
 		for(size_t i = 0; i < pc.cloud.size(); ++i)
 		{
+			SLAM::logDebugMsg("scan size: " + to_string(pc.cloud[i].scan_line.size()) + "\n", 1);
 			for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
 			{
 				double x = pc.cloud[i].scan_line[j].x;
@@ -99,8 +102,9 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 		p.likelihood = curr_particle_likelihood;
 	}
 	//boundLikelihoods();
-	setPose();
+	setPose(pc.utime);
 	publishPose();
+	publishParticles();
 }
 
 void Localizer::boundLikelihoods()
@@ -116,7 +120,7 @@ void Localizer::boundLikelihoods()
 	}
 }
 
-void Localizer::setPose()
+void Localizer::setPose(int64_t utime)
 {
 	Particle best_particle = particles[0];
 	for(size_t p = 1; p < particles.size(); ++p)
@@ -130,7 +134,7 @@ void Localizer::setPose()
 	last_pose.x = best_particle.x;
 	last_pose.y = best_particle.y;
 	last_pose.theta = best_particle.theta;
-	last_pose.utime = 0;
+	last_pose.utime = utime;
 }
 
 void Localizer::publishPose() const
@@ -141,6 +145,26 @@ void Localizer::publishPose() const
 	pub_state.yaw = last_pose.theta;
 	lcm::LCM l;
 	l.publish(SLAM_STATE_CHANNEL, &pub_state);
+}
+
+void Localizer::publishParticles() const
+{
+	particles_t curr_particles;
+	curr_particles.utime = last_pose.utime;
+	curr_particles.num_particles = particles.size();
+	for(size_t i = 0; i < particles.size(); ++i)
+	{
+		particle_t particle;
+		particle.utime = last_pose.utime;
+		particle.x = particles[i].x;
+		particle.y = particles[i].y;
+		particle.theta = particles[i].theta;
+		particle.likelihood = particles[i].likelihood;
+		curr_particles.particles.push_back(particle);
+	}
+
+	lcm::LCM l;
+	l.publish(SLAM_PARTICLE_CHANNEL, &curr_particles);
 }
 
 void Localizer::fillParticles(const gps_t & gps_data)

@@ -1,9 +1,11 @@
 #ifndef __SLAM_UTILITES_HPP__
 #define __SLAM_UTILITES_HPP__
 
-
+#include <iostream>
 #include <cmath>
 #include "Pose.hpp"
+
+#define DEG_TO_RAD(d) d/180.0 *M_PI
 
 namespace SLAM
 {

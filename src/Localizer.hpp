@@ -51,8 +51,9 @@ private:
 	void weightParticles(const SLAM::LCM::slam_pc_t & pc);
 
 	void boundLikelihoods();
-	void setPose();
+	void setPose(int64_t utime);
 	void publishPose() const;
+	void publishParticles() const;
 
 	GridMap map;
 	std::vector<Particle> particles;

@@ -31,6 +31,7 @@ void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
 
 SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 {
+	return poses.back();
 	//find the pose closest to the time (assume movement between poses is neglegible)
 	SLAM::Pose closest_pose = poses.front();
 	int64_t t_diff = abs(closest_pose.utime - time);
