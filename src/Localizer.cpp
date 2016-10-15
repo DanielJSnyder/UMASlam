@@ -191,3 +191,14 @@ void Localizer::fillParticles(double theta)
 		particles[i].theta = theta + theta_fog_dist(gen);
 	}
 }
+
+void Localizer::reset()
+{
+	fog_initialized = false;
+}
+
+void Localizer::reinitializeFOG(double new_initial_fog)
+{
+	initial_theta = new_initial_fog;
+	fog_initialized = true;
+}

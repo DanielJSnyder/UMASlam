@@ -1,4 +1,5 @@
 #include "GridMap.hpp"
+#include "Constants.hpp"
 #include <cmath>
 
 using namespace std;
@@ -15,7 +16,7 @@ GridMap::GridMap() :
 }
 
 GridMap::GridMap(double mnx, double mxx, double mny, double mxy, double ss):
-	map((abs(mnx)+ abs(mxx))/ss * (abs(mny) + abs(mxy))/ss, 128),//intialize the map to be all grey
+	map((abs(mnx)+ abs(mxx))/ss * (abs(mny) + abs(mxy))/ss, INITIAL_MAP_VALUE),//intialize the map to be all grey
 	max_x(mxx),
 	max_y(mxy),
 	min_x(mnx),
@@ -41,4 +42,9 @@ const GridMap& GridMap::operator=(const GridMap & gm)
 	cells_per_row = gm.cells_per_row;
 
 	return *this;
+}
+
+void GridMap::resetMap()
+{
+	map.assign(map.size(), INITIAL_MAP_VALUE);
 }

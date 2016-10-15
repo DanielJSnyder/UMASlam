@@ -32,6 +32,7 @@ public:
 	const GridMap& getMap() const;
 
 	void addPose(const SLAM::Pose & pose);
+	void reset();
 
 private:
 	SLAM::Pose findAssociatedPose(int64_t time);

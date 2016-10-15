@@ -43,8 +43,11 @@ public:
 	SLAM::Pose getPose() const;
 
 	void updateMap(const GridMap & new_map);
-private:
 
+	void reset();
+	void reinitializeFOG(double new_initial_fog);
+
+private:
 	void fillParticles(const common::LCM::types::gps_t & gps_data);
 	void fillParticles(double theta);
 
@@ -64,7 +67,6 @@ private:
 	std::normal_distribution<> x_gps_dist;
 	std::normal_distribution<> y_gps_dist;
 	std::normal_distribution<> theta_fog_dist;
-	double last_theta;
 	double initial_theta;
 	bool fog_initialized;
 };

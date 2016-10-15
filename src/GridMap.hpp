@@ -85,6 +85,8 @@ public:
 	{
 		return map[idx];
 	}
+
+	void resetMap();
 private:
 	//actual map containing the probabilities 
 	//idx 0 is bottom left (-y, -x)

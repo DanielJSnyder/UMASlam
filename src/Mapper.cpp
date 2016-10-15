@@ -133,6 +133,12 @@ void Mapper::addAsFull(double x, double y)
 	}
 }
 
+void Mapper::reset()
+{
+	map.resetMap();
+	poses.clear();
+}
+
 GridMap Mapper::getMapCopy() const
 {
 	return map;

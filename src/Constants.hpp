@@ -32,6 +32,7 @@
 #define DEFAULT_FOG_SIGMA 0.0125
 
 //mapping constants
+#define INITIAL_MAP_VALUE 128
 #define FULL_SQUARE_INC 5.0
 #define EMPTY_SQUARE_INC (-1.0)
 
