@@ -24,6 +24,7 @@ public:
 	void startDraw();
 	void drawMap(sf::RenderWindow & win);
 	void drawPoses(sf::RenderWindow & win);
+	void drawBoat(sf::RenderWindow & win);
 
 	void handleState(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const common::LCM::types::state_t * state);
 
