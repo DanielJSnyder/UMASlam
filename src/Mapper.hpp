@@ -10,6 +10,12 @@
 #include "../lcmtypes/state_t.hpp"
 #include "../lcmtypes/slam_pc_t.hpp"
 
+struct GridUpdate
+{
+	size_t grid_index;
+	double value;
+};
+
 class Mapper
 {
 public:
@@ -37,8 +43,11 @@ private:
 	SLAM::Pose findAssociatedPose(int64_t time);
 	void addAsEmpty(double x, double y);
 	void addAsFull(double x, double y);
+	int findUpdate(std::size_t idx);
+	void updateMap();
 	
 	std::vector<SLAM::Pose> poses;
+	std::vector<GridUpdate> grid_updates;
 	GridMap map;
 	double laser_step_size;
 

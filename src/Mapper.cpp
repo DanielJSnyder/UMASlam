@@ -49,6 +49,7 @@ SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 
 void Mapper::addToMap(const slam_pc_t & pc)
 {
+	grid_updates.clear();
 	for(int scan_num = 0; scan_num < pc.num_scans; ++scan_num)
 	{
 		SLAM::Pose closest_pose = findAssociatedPose(pc.cloud[scan_num].utime);
@@ -57,6 +58,7 @@ void Mapper::addToMap(const slam_pc_t & pc)
 			addPointToMap(closest_pose, pc.cloud[scan_num].scan_line[point_num]);
 		}
 	}
+	updateMap();
 }
 
 void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & local_coords_end_point)
@@ -111,25 +113,61 @@ void Mapper::addPose(const SLAM::Pose & pose)
 
 void Mapper::addAsEmpty(double x, double y)
 {
-	if(map.at(x,y) < abs(EMPTY_INC))
+	size_t grid_idx = map.convertToGridCoords(x,y);
+	int update_index = findUpdate(grid_idx);
+	if(update_index == -1)
 	{
-		map.at(x,y) = 0;
+		GridUpdate u;
+		u.grid_index = grid_idx;
+		u.value = EMPTY_INC;
+
+		grid_updates.push_back(u);
 	}
 	else
 	{
-		map.at(x,y) += EMPTY_INC;
+		if(grid_updates[update_index].value < 0)
+			grid_updates[update_index].value = EMPTY_INC;
 	}
 }
 
 void Mapper::addAsFull(double x, double y)
 {
-	if(255 < ((int16_t)(map.at(x,y)) + FULL_INC))
+	size_t grid_idx = map.convertToGridCoords(x,y);
+	int update_index = findUpdate(grid_idx);
+	if(update_index == -1)
 	{
-		map.at(x,y) = 255;
+		GridUpdate u;
+		u.grid_index = grid_idx;
+		u.value = FULL_INC;
+		grid_updates.push_back(u);
 	}
 	else
 	{
-		map.at(x,y) += FULL_INC;
+		grid_updates[update_index].value = FULL_INC;
+	}
+}
+
+int Mapper::findUpdate(size_t idx)
+{
+	for(size_t i = 0; i < grid_updates.size(); ++i)
+	{
+		if(grid_updates[i].grid_index == idx)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void Mapper::updateMap()
+{
+	for(GridUpdate & u : grid_updates)
+	{
+		//clamp the values here
+		int16_t value = map[u.grid_index];
+		value += u.value;
+		uint8_t result = std::min((uint8_t)255, (uint8_t)(int16_t)std::max((int16_t)0, value));
+		map[u.grid_index] = result;
 	}
 }
 
