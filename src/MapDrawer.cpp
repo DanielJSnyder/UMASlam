@@ -49,8 +49,8 @@ void MapDrawer::startDraw()
 						break;
 
 					case sf::Event::MouseWheelMoved:
-						if(event.mouseWheel.delta < 0)			current_zoom = max(current_zoom - .1, .5);
-						else if(event.mouseWheel.delta > 0)	current_zoom = max(current_zoom + .1, 2.0);
+						if(event.mouseWheel.delta < 0)			current_zoom = max(current_zoom - .1, .125);
+						else if(event.mouseWheel.delta > 0)	current_zoom = max(current_zoom + .1, 4.0);
 						break;
 
 					case sf::Event::MouseButtonPressed:
@@ -72,6 +72,7 @@ void MapDrawer::startDraw()
 		window.clear(sf::Color::White);
 		drawMap(window);
 		drawPoses(window);
+		drawBoat(window);
 
 		window.setView(view);
 		window.display();
@@ -152,12 +153,34 @@ void MapDrawer::handleState(const lcm::ReceiveBuffer * rbuf, const string & chan
 	addPose(p);
 }
 
-/*
-void MapDrawer::drawBoat(sf::RenderWindow & win, double x, double y)
+void MapDrawer::drawBoat(sf::RenderWindow & win)
 {
+	if(poses.size() == 0)
+		return;
+
+	sf::VertexArray boat;
+	boat.setPrimitiveType(sf::Triangles);
+	boat.resize(3);
+
+	double forward_dx = cos(poses.back().theta);
+	double forward_dy = sin(poses.back().theta);
+
+	pair<double, double> coord2 = convertToPixelCoords(forward_dx + poses.back().x,
+													   forward_dy + poses.back().y);
+	pair<double, double> coord1 = convertToPixelCoords(-forward_dx - forward_dy/2.0 + poses.back().x,
+													   -forward_dy + forward_dx/2.0 + poses.back().y);
+	pair<double, double> coord3 = convertToPixelCoords(-forward_dx  + forward_dy/2.0 + poses.back().x,
+													   -forward_dy - forward_dx/2.0 + poses.back().y);
 	
+	boat[0].position = sf::Vector2f(coord1.first, coord1.second);
+	boat[0].color = sf::Color::Blue;
+	boat[1].position = sf::Vector2f(coord2.first, coord2.second);
+	boat[1].color = sf::Color::Red;
+	boat[2].position = sf::Vector2f(coord3.first, coord3.second);
+	boat[2].color = sf::Color::Blue;
+
+	win.draw(boat);
 }
-*/
 
 void MapDrawer::drawPoses(sf::RenderWindow & win)
 {
