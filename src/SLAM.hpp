@@ -3,6 +3,7 @@
 
 #include "Localizer.hpp"
 #include "Mapper.hpp"
+#include "FakeCompass.hpp"
 #include "../lcmtypes/slam_pc_t.hpp"
 #include "../lcmtypes/fog_t.hpp"
 #include "../lcmtypes/gps_t.hpp"
@@ -46,5 +47,7 @@ public:
 
 private:
 	bool end_flag; //used for signaling the end for profiling
+	bool reinitialized_fog;
+	FakeCompass fake_compass;
 };
 #endif

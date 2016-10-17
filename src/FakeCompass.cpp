@@ -1,24 +1,38 @@
 #include "FakeCompass.hpp" 
+#include "Utilities.hpp"
+#include <algorithm>
 
 using namespace std;
 using namespace common::LCM::types;
 
-
-void FakeCompass::handleState(const lcm::ReceiveBuffer * rbuf,
-							  const string & chan,
-							  const state_t * state)
-{
-	states.push_back(*state);
-}
-
 double FakeCompass::getNorthLocation()
 {
-	double total_north = 0;
-	size_t num_norths = 0;
-	for(size_t i = 0; i < 
+	double total_fog = std::accumulate(angles.begin(), angles.end(), 0.0);
+	double average_fog = total_fog/static_cast<double>(angles.size());
+	
+	//calculate the final angle of travel
+	double end_angle = atan2(xy_coords.back().second, xy_coords.back().first);
+
+	return (average_fog - end_angle);
 }
 
-size_t FakeCompass::getNumStates() const
+void FakeCompass::addGPS(const gps_t & gps_data)
 {
-	return states.size();
+	if(!coord_transformer.isInitialized())
+	{
+		coord_transformer.initialize(gps_data.latitude, gps_data.longitude);
+	}
+	xy_coords.push_back(coord_transformer.transform(gps_data.latitude, gps_data.longitude));
+}
+
+void FakeCompass::addFOG(const fog_t & fog_data)
+{
+	angles.push_back(DEG_TO_RAD(fog_data.data));
+}
+
+double FakeCompass::getDistFromOrigin() const
+{
+	double x = xy_coords.back().first;
+	double y = xy_coords.back().second;
+	return (x*x + y*y);
 }

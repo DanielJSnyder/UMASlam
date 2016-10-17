@@ -9,7 +9,8 @@ using namespace SLAM::LCM;
 Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
 			   localizer(NUM_PARTICLES),
 			   num_mapped_scans(0),
-			   end_flag(false)
+			   end_flag(false),
+			   reinitialized_fog(false)
 {
 	llcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Slam::handlePointCloud, this);
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
@@ -56,6 +57,7 @@ void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 {
 	cout << "handling FOG data" << endl;
 	localizer.handleFOGData(rbuf, chan, fog_data);
+	fake_compass.addFOG(*fog_data);
 }
 
 void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
@@ -64,6 +66,19 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 {
 	cout << "handling gpsData" << endl;
 	localizer.handleGPSData(rbuf, chan, gps_data);
+	fake_compass.addGPS(*gps_data);
+
+	//reinitialization of the fog
+	if(USE_FAKE_COMPASS && 
+	   !reinitialized_fog && 
+	   fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
+	{
+		reinitialized_fog = true;
+		mapper.reset();
+		localizer.reset();
+		localizer.reinitializeFOG(fake_compass.getNorthLocation());
+		localizer.updateMap(mapper.getMap());
+	}
 }
 
 void Slam::handleState(const lcm::ReceiveBuffer * rbuf,

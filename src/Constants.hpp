@@ -33,7 +33,11 @@
 
 //mapping constants
 #define INITIAL_MAP_VALUE 128
-#define FULL_SQUARE_INC 5.0
-#define EMPTY_SQUARE_INC (-1.0)
+#define FULL_SQUARE_INC 10.0
+#define EMPTY_SQUARE_INC (-2.0)
+
+//fake compass stuff
+#define USE_FAKE_COMPASS 1
+#define ORIGIN_DIST_BEFORE_REINITIALIZATION 10
 
 #endif
