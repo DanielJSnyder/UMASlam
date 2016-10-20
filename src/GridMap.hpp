@@ -86,6 +86,11 @@ public:
 		return map[idx];
 	}
 
+	uint8_t& operator[](std::size_t idx)
+	{
+		return map[idx];
+	}
+
 	void resetMap();
 private:
 	//actual map containing the probabilities 
