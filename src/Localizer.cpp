@@ -3,6 +3,7 @@
 #include "../lcmtypes/state_t.hpp"
 #include "Utilities.hpp"
 #include "../lcmtypes/particles_t.hpp"
+#include <queue>
 
 using namespace std;
 using namespace common::LCM::types;
@@ -122,18 +123,39 @@ void Localizer::boundLikelihoods()
 
 void Localizer::setPose(int64_t utime)
 {
-	Particle best_particle = particles[0];
-	for(size_t p = 1; p < particles.size(); ++p)
+	priority_queue<Particle> part_queue;
+
+	size_t p = 0;
+
+	for(; p < NUM_AVERAGE_PARTICLES; ++p)
 	{
-		if(particles[p].likelihood > best_particle.likelihood)
+		part_queue.push(particles[p]);
+	}
+	
+	for(; p < particles.size(); ++p)
+	{
+		if(part_queue.top().likelihood < particles[p].likelihood)
 		{
-			best_particle = particles[p];
+			part_queue.pop();
+			part_queue.push(particles[p]);
 		}
 	}
 
-	last_pose.x = best_particle.x;
-	last_pose.y = best_particle.y;
-	last_pose.theta = best_particle.theta;
+	double total_x = 0; 
+	double total_y = 0;
+	double total_theta = 0;
+
+	while(!part_queue.empty())
+	{
+		total_x += part_queue.top().x;
+		total_y += part_queue.top().y;
+		total_theta += part_queue.top().theta;
+		part_queue.pop();
+	}
+
+	last_pose.x = total_x/NUM_AVERAGE_PARTICLES;
+	last_pose.y = total_y/NUM_AVERAGE_PARTICLES;
+	last_pose.theta = total_theta/NUM_AVERAGE_PARTICLES;
 	last_pose.utime = utime;
 }
 

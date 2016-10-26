@@ -20,6 +20,19 @@ struct Particle
 	double likelihood;
 
 	Particle();
+
+	bool operator<(const Particle & po) const
+	{
+		return po.likelihood < likelihood;
+	}
+};
+
+struct ParticleComparer
+{
+	bool operator()(const Particle & p1, const Particle & p2)
+	{
+		return p2.likelihood < p1.likelihood;
+	}
 };
 
 class Localizer

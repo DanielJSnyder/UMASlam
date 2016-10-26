@@ -10,15 +10,15 @@ class Printer
 public:
 void printHandle(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const particles_t * p)
 {
-	cerr << "Printing " << p->num_particles << " particles" << endl;
+	cout << "Printing " << p->num_particles << " particles" << endl;
 	for(int i = 0; i < p->num_particles;++i)
 	{
-		cerr << p->particles[i].x << "\t"
+		cout << p->particles[i].x << "\t"
 			 << p->particles[i].y << "\t"
 			 << p->particles[i].theta << "\t"
 			 << p->particles[i].likelihood << endl;
 	}
-	cerr << endl;
+	cout << endl;
 }
 };
 

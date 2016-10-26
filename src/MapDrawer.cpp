@@ -50,7 +50,7 @@ void MapDrawer::startDraw()
 
 					case sf::Event::MouseWheelMoved:
 						if(event.mouseWheel.delta < 0)			current_zoom = max(current_zoom - .1, .125);
-						else if(event.mouseWheel.delta > 0)	current_zoom = max(current_zoom + .1, 4.0);
+						else if(event.mouseWheel.delta > 0)	current_zoom = min(current_zoom + .1, 4.0);
 						break;
 
 					case sf::Event::MouseButtonPressed:

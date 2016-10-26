@@ -24,17 +24,18 @@
 
 //localization constants
 #define HIT_LIKELIHOOD_INC_VALUE 1.0
-#define HIT_THRESHOLD 150
+#define HIT_THRESHOLD 175
+#define NUM_AVERAGE_PARTICLES 3
 //Data sheet values 1.5
 #define DEFAULT_GPS_SIGMA 0.5
 
 //Data sheet value 0.5
-#define DEFAULT_FOG_SIGMA 0.0125
+#define DEFAULT_FOG_SIGMA 0.5*M_PI/180.0
 
 //mapping constants
 #define INITIAL_MAP_VALUE 128
 #define FULL_SQUARE_INC 10.0
-#define EMPTY_SQUARE_INC (-2.0)
+#define EMPTY_SQUARE_INC (-1.0)
 
 //fake compass stuff
 #define USE_FAKE_COMPASS 1

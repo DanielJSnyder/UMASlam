@@ -125,8 +125,10 @@ void Mapper::addAsEmpty(double x, double y)
 	}
 	else
 	{
-		if(grid_updates[update_index].value < 0)
-			grid_updates[update_index].value = EMPTY_INC;
+		if(grid_updates[update_index].value <= 0)
+		{
+			grid_updates[update_index].value += EMPTY_INC;
+		}
 	}
 }
 
@@ -143,7 +145,12 @@ void Mapper::addAsFull(double x, double y)
 	}
 	else
 	{
-		grid_updates[update_index].value = FULL_INC;
+		if(grid_updates[update_index].value < 0)
+		{
+			grid_updates[update_index].value = FULL_INC;
+		}
+		else
+			grid_updates[update_index].value += FULL_INC;
 	}
 }
 
