@@ -26,6 +26,8 @@ class scan_line_t
 
         std::vector< SLAM::LCM::point3D_t > scan_line;
 
+        std::vector< int8_t > hit;
+
     public:
         /**
          * Encode a message into binary form.
@@ -133,6 +135,11 @@ int scan_line_t::_encodeNoHash(void *buf, int offset, int maxlen) const
         if(tlen < 0) return tlen; else pos += tlen;
     }
 
+    if(this->scan_size > 0) {
+        tlen = __int8_t_encode_array(buf, offset + pos, maxlen - pos, &this->hit[0], this->scan_size);
+        if(tlen < 0) return tlen; else pos += tlen;
+    }
+
     return pos;
 }
 
@@ -152,6 +159,12 @@ int scan_line_t::_decodeNoHash(const void *buf, int offset, int maxlen)
         if(tlen < 0) return tlen; else pos += tlen;
     }
 
+    this->hit.resize(this->scan_size);
+    if(this->scan_size) {
+        tlen = __int8_t_decode_array(buf, offset + pos, maxlen - pos, &this->hit[0], this->scan_size);
+        if(tlen < 0) return tlen; else pos += tlen;
+    }
+
     return pos;
 }
 
@@ -163,6 +176,7 @@ int scan_line_t::_getEncodedSizeNoHash() const
     for (int a0 = 0; a0 < this->scan_size; a0++) {
         enc_size += this->scan_line[a0]._getEncodedSizeNoHash();
     }
+    enc_size += __int8_t_encoded_array_size(NULL, this->scan_size);
     return enc_size;
 }
 
@@ -174,7 +188,7 @@ int64_t scan_line_t::_computeHash(const __lcm_hash_ptr *p)
             return 0;
     const __lcm_hash_ptr cp = { p, (void*)scan_line_t::getHash };
 
-    int64_t hash = 0xe41f6044c45e3e6dLL +
+    int64_t hash = 0xc558f9306aa44b9dLL +
          SLAM::LCM::point3D_t::_computeHash(&cp);
 
     return (hash<<1) + ((hash>>63)&1);

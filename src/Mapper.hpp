@@ -13,7 +13,7 @@
 struct GridUpdate
 {
 	size_t grid_index;
-	double value;
+	int64_t value;
 };
 
 class Mapper
@@ -31,7 +31,7 @@ public:
 
 	void addToMap(const SLAM::LCM::slam_pc_t & pc);
 
-	void addPointToMap(const SLAM::Pose & curr_pose, const SLAM::LCM::point3D_t & local_coords_end_point);
+	void addPointToMap(const SLAM::Pose & curr_pose, const SLAM::LCM::point3D_t & local_coords_end_point, int8_t hit);
 
 	GridMap getMapCopy() const;
 

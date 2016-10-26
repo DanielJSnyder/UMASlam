@@ -76,39 +76,39 @@ void PointCloudMaker::extractPointCloud()
 		//create the scan line being built
 		scan_line_t curr_scan;
 		curr_scan.utime = l.utime;
+		curr_scan.scan_size = l.nranges;
+		curr_scan.scan_line.resize(curr_scan.scan_size);
+		curr_scan.hit.resize(curr_scan.scan_size);
 
 		for(int i = 0; i < l.nranges; ++i)
 		{
 			point3D_t point;
 			point.utime = l.utime;
-			if(l.ranges[i] > 0.5)
+			double r = l.ranges[i];
+			bool hit = true;
+			if(r < 0)
 			{
-				SLAM::logDebugMsg("LOGGING A RANGE GREATER THAN 0.5m", 1);
-				double phi = l.radstep * (double)i + l.rad0;
-				double theta = initial_angle;//phi is off of z axis
-				double r = l.ranges[i];
-				
-				double sin_ang = sin(theta);
-				double x = -r*sin_ang*cos(phi);
-				double y = r*sin_ang*sin(phi);
-				double z = r*cos(theta);
-
-				//add the point to the point_cloud
-				point.x = x;
-				point.y = y;
-				point.z = z;
-			}
-			else
-			{
-				point.x = 0;
-				point.y = 0;
-				point.z = 0;
+				r = DEFAULT_MISS_RANGE;
+				hit = false;
 			}
 
-			curr_scan.scan_line.push_back(point);
+			double phi = l.radstep * (double)i + l.rad0;
+			double theta = initial_angle;//theta is off of z axis
+			
+			double sin_ang = sin(theta);
+			double x = -r*sin_ang*cos(phi);
+			double y = r*sin_ang*sin(phi);
+			double z = r*cos(theta);
+
+			//add the point to the point_cloud
+			point.x = x;
+			point.y = y;
+			point.z = z;
+
+			curr_scan.scan_line[i] = point;
+			curr_scan.hit[i] = (hit)? 1 : 0;
 		}
 
-		curr_scan.scan_size = curr_scan.scan_line.size();
 		//add the scan to the point_cloud
 		publish_pc.cloud.push_back(curr_scan);
 	}

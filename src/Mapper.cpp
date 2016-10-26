@@ -55,13 +55,13 @@ void Mapper::addToMap(const slam_pc_t & pc)
 		SLAM::Pose closest_pose = findAssociatedPose(pc.cloud[scan_num].utime);
 		for(int point_num = 0; point_num < pc.cloud[scan_num].scan_size; ++point_num)
 		{
-			addPointToMap(closest_pose, pc.cloud[scan_num].scan_line[point_num]);
+			addPointToMap(closest_pose, pc.cloud[scan_num].scan_line[point_num], pc.cloud[scan_num].hit[point_num]);
 		}
 	}
 	updateMap();
 }
 
-void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & local_coords_end_point)
+void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & local_coords_end_point, int8_t hit)
 {
 	//get the global coordinates
 	double x = local_coords_end_point.x;
@@ -91,19 +91,22 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 		size_t cell_num = map.convertToGridCoords(curr_x, curr_y);
 		if(cell_num != prev_cell)
 		{
-			if(cell_num == end_cell)
-			{
-				addAsFull(curr_x, curr_y);
-				prev_cell = end_cell;
-			}
-			else
+			if(cell_num != end_cell)
 			{
 				addAsEmpty(curr_x, curr_y);
-				prev_cell = cell_num;
 			}
+
+			prev_cell = cell_num;
 		}
 	}
-
+	if(hit == 1)
+	{
+		addAsFull(x, y);
+	}
+	else
+	{
+		addAsEmpty(x,y);
+	}
 }
 
 void Mapper::addPose(const SLAM::Pose & pose)
@@ -171,9 +174,9 @@ void Mapper::updateMap()
 	for(GridUpdate & u : grid_updates)
 	{
 		//clamp the values here
-		int16_t value = map[u.grid_index];
+		int64_t value = map[u.grid_index];
 		value += u.value;
-		uint8_t result = std::min((uint8_t)255, (uint8_t)(int16_t)std::max((int16_t)0, value));
+		uint8_t result = std::min((int64_t)255, std::max((int64_t)0, value));
 		map[u.grid_index] = result;
 	}
 }

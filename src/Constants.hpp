@@ -19,13 +19,14 @@
 #define MIN_X -50
 #define MAX_Y 50
 #define MIN_Y -50
-#define SQUARE_SIZE 0.5
+#define SQUARE_SIZE 1.0
 #define NUM_PARTICLES 1000
 
 //localization constants
 #define HIT_LIKELIHOOD_INC_VALUE 1.0
 #define HIT_THRESHOLD 175
-#define NUM_AVERAGE_PARTICLES 3
+#define NUM_AVERAGE_PARTICLES 5
+
 //Data sheet values 1.5
 #define DEFAULT_GPS_SIGMA 0.5
 
@@ -36,6 +37,9 @@
 #define INITIAL_MAP_VALUE 128
 #define FULL_SQUARE_INC 10.0
 #define EMPTY_SQUARE_INC (-1.0)
+
+//point cloud constants
+#define DEFAULT_MISS_RANGE 10;
 
 //fake compass stuff
 #define USE_FAKE_COMPASS 1

@@ -5,4 +5,5 @@ struct scan_line_t
 	int64_t utime;
 	int32_t scan_size;
 	point3D_t scan_line[scan_size];
+	int8_t hit[scan_size];//hit[i] ==1 means that point3D_t hit an object, hit[i] == 0 means that the lidar point hit nothing
 }
