@@ -21,7 +21,6 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 						    const string & chan,
 						    const slam_pc_t * pc)
 {
-	cout << "handling Point Cloud number: " << num_mapped_scans << endl;
 	if(num_mapped_scans >= NUM_ONLY_MAP_SCANS)
 	{
 		localizer.handlePointCloud(rbuf, chan, pc);
@@ -40,11 +39,12 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 
 	#ifdef PROFILE
 	if(num_mapped_scans >= NUM_ONLY_MAP_SCANS)
+	{
 		++num_mapped_scans;
+	}
 	
 	if(num_mapped_scans > NUM_PROFILED_SCANS)
 	{
-		cout << "set end flag true" << endl;
 		end_flag = true;
 	}
 
@@ -55,7 +55,6 @@ void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const fog_t * fog_data)
 {
-	cout << "handling FOG data" << endl;
 	localizer.handleFOGData(rbuf, chan, fog_data);
 	fake_compass.addFOG(*fog_data);
 }
@@ -64,7 +63,6 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const gps_t * gps_data)
 {
-	cout << "handling gpsData" << endl;
 	localizer.handleGPSData(rbuf, chan, gps_data);
 	fake_compass.addGPS(*gps_data);
 

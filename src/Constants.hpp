@@ -19,7 +19,7 @@
 #define MIN_X -50
 #define MAX_Y 50
 #define MIN_Y -50
-#define SQUARE_SIZE 1.0
+#define SQUARE_SIZE 0.5
 #define NUM_PARTICLES 1000
 
 //localization constants
@@ -36,13 +36,17 @@
 //mapping constants
 #define INITIAL_MAP_VALUE 128
 #define FULL_SQUARE_INC 10.0
-#define EMPTY_SQUARE_INC (-1.0)
+static const double EMPTY_SQUARE_INC = -0.05;
+//#define EMPTY_SQUARE_INC (-(0.1))
 
 //point cloud constants
-#define DEFAULT_MISS_RANGE 10;
+#define DEFAULT_MISS_RANGE 15
 
 //fake compass stuff
 #define USE_FAKE_COMPASS 1
-#define ORIGIN_DIST_BEFORE_REINITIALIZATION 10
+#define ORIGIN_DIST_BEFORE_REINITIALIZATION 15
+
+//Drawing stuff
+#define NUM_POSES_TO_DRAW 50
 
 #endif

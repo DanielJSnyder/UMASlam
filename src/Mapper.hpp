@@ -13,7 +13,7 @@
 struct GridUpdate
 {
 	size_t grid_index;
-	int64_t value;
+	double value;
 };
 
 class Mapper

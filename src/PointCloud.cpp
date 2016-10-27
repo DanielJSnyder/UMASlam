@@ -91,6 +91,10 @@ void PointCloudMaker::extractPointCloud()
 				r = DEFAULT_MISS_RANGE;
 				hit = false;
 			}
+			else if (r < 0.5)
+			{
+				hit = false;
+			}
 
 			double phi = l.radstep * (double)i + l.rad0;
 			double theta = initial_angle;//theta is off of z axis

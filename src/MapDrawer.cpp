@@ -1,6 +1,7 @@
 #include "MapDrawer.hpp"
 #include <iostream>
 #include <thread>
+#include "Constants.hpp"
 
 #define WINDOW_HEIGHT 1600.0f
 #define WINDOW_WIDTH 1200.0f
@@ -79,7 +80,6 @@ void MapDrawer::startDraw()
 	}
 }
 
-//0,0 = (400, 300)
 void MapDrawer::drawMap(sf::RenderWindow & win)
 {
 	unique_lock<mutex> map_lock(map_mut);
@@ -187,7 +187,7 @@ void MapDrawer::drawPoses(sf::RenderWindow & win)
 	sf::VertexArray pose_line;
 	pose_line.setPrimitiveType(sf::LinesStrip);
 	pose_line.resize(poses.size());
-	for(size_t i = std::max(0, (int)(poses.size()) - 10); i < poses.size(); ++i)
+	for(size_t i = std::max(0, (int)(poses.size()) - NUM_POSES_TO_DRAW); i < poses.size(); ++i)
 	{
 		SLAM::Pose p = poses[i];
 		pair<double, double> coords = convertToPixelCoords(p.x, p.y);

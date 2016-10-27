@@ -87,9 +87,13 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 			SLAM::logDebugMsg("scan size: " + to_string(pc.cloud[i].scan_line.size()) + "\n", 1);
 			for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
 			{
+				if(pc.cloud[i].hit[j] == 0)
+					continue;
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
 				double z = pc.cloud[i].scan_line[j].z;
+				if(x < 0)
+					continue;
 			
 				SLAM::rotateIntoGlobalCoordsInPlace(x,y,z, particle_pose);
 				

@@ -67,6 +67,10 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 	double x = local_coords_end_point.x;
 	double y = local_coords_end_point.y;
 	double z = local_coords_end_point.z;
+	if(x < 0)
+	{
+		return;
+	}
 
 	SLAM::rotateIntoGlobalCoordsInPlace(x,y,z,start_pose);
 
@@ -130,7 +134,7 @@ void Mapper::addAsEmpty(double x, double y)
 	{
 		if(grid_updates[update_index].value <= 0)
 		{
-			grid_updates[update_index].value += EMPTY_INC;
+			grid_updates[update_index].value += EMPTY_SQUARE_INC;
 		}
 	}
 }
@@ -174,9 +178,9 @@ void Mapper::updateMap()
 	for(GridUpdate & u : grid_updates)
 	{
 		//clamp the values here
-		int64_t value = map[u.grid_index];
+		double value = map[u.grid_index];
 		value += u.value;
-		uint8_t result = std::min((int64_t)255, std::max((int64_t)0, value));
+		uint8_t result = std::min((int64_t)255, std::max((int64_t)0, static_cast<int64_t>(value)));
 		map[u.grid_index] = result;
 	}
 }
