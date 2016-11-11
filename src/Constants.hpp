@@ -35,12 +35,13 @@
 
 //mapping constants
 #define INITIAL_MAP_VALUE 128
-#define FULL_SQUARE_INC 10.0
-static const double EMPTY_SQUARE_INC = -0.05;
+#define FULL_SQUARE_INC 5.0
+static const double EMPTY_SQUARE_INC = -0.025;
 //#define EMPTY_SQUARE_INC (-(0.1))
 
 //point cloud constants
 #define DEFAULT_MISS_RANGE 15
+static const double LIDAR_HEIGHT = 0.15;
 
 //fake compass stuff
 #define USE_FAKE_COMPASS 1

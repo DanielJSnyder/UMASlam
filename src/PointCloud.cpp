@@ -1,7 +1,6 @@
 #include "PointCloud.hpp"
 #include "Constants.hpp"
 #include "Utilities.hpp"
-#include "../lcmtypes/point_cloud_t.hpp"
 #include <cmath>
 
 using namespace std;
@@ -38,6 +37,50 @@ void PointCloudMaker::handleServo(const lcm::ReceiveBuffer * rbuf,
 	}
 }
 
+point3D_t PointCloudMaker::createPoint(int64_t utime, double range, double servo_angle, double point_angle)
+{
+	point3D_t point;
+	point.utime = utime;
+
+	double phi = point_angle;
+	double theta = servo_angle;//theta is off of z axis (more negative is more tilted forward, -pi/2 is flat?)`
+
+	double sin_ang = sin(theta);
+	double x = -range*sin_ang*cos(phi);
+	double y = range*sin_ang*sin(phi);
+	double z = range*cos(theta);
+
+	//add the point to the point_cloud
+	point.x = x;
+	point.y = y;
+	point.z = z;
+	return point;
+}
+
+point3D_t PointCloudMaker::createPoint2(int64_t utime, double range, double servo_angle, double point_angle)
+{
+	//do the transform
+	point3D_t point;
+	point.utime = utime;
+
+	//set servo angle to be relative to 0 degrees flat
+	double theta = servo_angle + M_PI/2.0;
+
+	//set the point angle to be properly set
+	double phi = -point_angle;
+	
+	// do the calculations
+	double x = range * cos(phi) * cos(theta) + LIDAR_HEIGHT * sin(theta);
+	double y = range * sin(phi);
+	double z = (range * cos(phi) * sin(theta) + LIDAR_HEIGHT * cos(theta));
+
+	//add the point to the point_cloud
+	point.x = x;
+	point.y = y;
+	point.z = z;
+	return point;
+}
+
 void PointCloudMaker::extractPointCloud()
 {
 	//zero out the old point_cloud
@@ -67,7 +110,6 @@ void PointCloudMaker::extractPointCloud()
 			continue;
 		}
 
-
 		//assume that the utime is the start of the lidar scan
 		//calculate at what angle the first lidar point was received
 		int64_t delta_time = l.utime - prior_servo.utime;
@@ -82,34 +124,28 @@ void PointCloudMaker::extractPointCloud()
 
 		for(int i = 0; i < l.nranges; ++i)
 		{
-			point3D_t point;
-			point.utime = l.utime;
-			double r = l.ranges[i];
 			bool hit = true;
-			if(r < 0)
+			double range = l.ranges[i];
+			if(range < 0)
 			{
-				r = DEFAULT_MISS_RANGE;
+				range = DEFAULT_MISS_RANGE;
 				hit = false;
 			}
-			else if (r < 0.5)
+			else if (range < 0.5)
 			{
 				hit = false;
 			}
 
-			double phi = l.radstep * (double)i + l.rad0;
-			double theta = initial_angle;//theta is off of z axis
-			
-			double sin_ang = sin(theta);
-			double x = -r*sin_ang*cos(phi);
-			double y = r*sin_ang*sin(phi);
-			double z = r*cos(theta);
+			//point3D_t end_point = 
+			//createPoint(l.utime, range, initial_angle, l.radstep * double(i) + l.rad0);
+			point3D_t alternate_end_point = 
+				createPoint2(l.utime, range, initial_angle, l.radstep * double(i) + l.rad0);
 
-			//add the point to the point_cloud
-			point.x = x;
-			point.y = y;
-			point.z = z;
+			//cout << "theta: " << initial_angle << endl;
+			//cout << "Old point: " << end_point.x << '\t' << end_point.y << '\t' << end_point.z << endl;
+			//cout << "New point: " << alternate_end_point.x << '\t' << alternate_end_point.y << '\t' << alternate_end_point.z << endl;
 
-			curr_scan.scan_line[i] = point;
+			curr_scan.scan_line[i] = alternate_end_point;
 			curr_scan.hit[i] = (hit)? 1 : 0;
 		}
 

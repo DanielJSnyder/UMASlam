@@ -56,7 +56,10 @@ void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 						 const fog_t * fog_data)
 {
 	localizer.handleFOGData(rbuf, chan, fog_data);
-	fake_compass.addFOG(*fog_data);
+	if(!reinitialized_fog)
+	{
+		fake_compass.addFOG(*fog_data);
+	}
 }
 
 void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
@@ -64,18 +67,19 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 						 const gps_t * gps_data)
 {
 	localizer.handleGPSData(rbuf, chan, gps_data);
-	fake_compass.addGPS(*gps_data);
 
 	//reinitialization of the fog
-	if(USE_FAKE_COMPASS && 
-	   !reinitialized_fog && 
-	   fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
+	if(USE_FAKE_COMPASS && !reinitialized_fog)
 	{
-		reinitialized_fog = true;
-		mapper.reset();
-		localizer.reset();
-		localizer.reinitializeFOG(fake_compass.getNorthLocation());
-		localizer.updateMap(mapper.getMap());
+		fake_compass.addGPS(*gps_data);
+		if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
+		{
+			reinitialized_fog = true;
+			mapper.reset();
+			localizer.reset();
+			localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
+			localizer.updateMap(mapper.getMap());
+		}
 	}
 }
 
@@ -96,7 +100,6 @@ void Slam::run()
 {
 	while(!end_flag)
 	{
-		cerr << "handling a new message: " << end_flag << endl;
 		llcm.handle();
 	}
 }

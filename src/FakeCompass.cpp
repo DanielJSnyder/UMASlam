@@ -16,6 +16,12 @@ double FakeCompass::getNorthLocation()
 	return (average_fog - end_angle);
 }
 
+double FakeCompass::getNorthLocation(double initial_theta)
+{
+	double end_angle = atan2(xy_coords.back().second, xy_coords.back().first);
+	return (initial_theta - end_angle);
+}
+
 void FakeCompass::addGPS(const gps_t & gps_data)
 {
 	if(!coord_transformer.isInitialized())

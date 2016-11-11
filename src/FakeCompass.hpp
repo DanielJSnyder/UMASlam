@@ -11,6 +11,7 @@ class FakeCompass
 {
 public:
 	double getNorthLocation();
+	double getNorthLocation(double initial_theta);
 
 	void addGPS(const common::LCM::types::gps_t & gps_data);
 

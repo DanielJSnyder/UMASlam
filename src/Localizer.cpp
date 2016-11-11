@@ -99,14 +99,12 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 				
 				//just do simple hit or miss
 				if(map.at(x, y) > HIT_THRESHOLD)//if the square is considered full, add to likelihood
-				{
-					curr_particle_likelihood += HIT_LIKELIHOOD_INC_VALUE;
-				}
+				{ curr_particle_likelihood += HIT_LIKELIHOOD_INC_VALUE; }
 			}
 		}
 		p.likelihood = curr_particle_likelihood;
 	}
-	//boundLikelihoods();
+
 	setPose(pc.utime);
 	publishPose();
 	publishParticles();
@@ -227,4 +225,9 @@ void Localizer::reinitializeFOG(double new_initial_fog)
 {
 	initial_theta = new_initial_fog;
 	fog_initialized = true;
+}
+
+double Localizer::getFogInitialization() const
+{
+	return initial_theta;
 }

@@ -12,6 +12,7 @@ class PointCloudMaker
 	std::vector<common::LCM::types::servo_t> servos;
 	int32_t last_dir;
 	SLAM::LCM::slam_pc_t publish_pc;
+
 public:
 	PointCloudMaker();
 
@@ -26,6 +27,9 @@ public:
 
 	void extractPointCloud();
 	
+private:
+	SLAM::LCM::point3D_t createPoint(int64_t utime, double range, double servo_angle, double point_angle);
+	SLAM::LCM::point3D_t createPoint2(int64_t utime, double range, double servo_angle, double point_angle);
 };
 
 #endif

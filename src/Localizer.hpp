@@ -60,6 +60,8 @@ public:
 	void reset();
 	void reinitializeFOG(double new_initial_fog);
 
+	double getFogInitialization() const;
+
 private:
 	void fillParticles(const common::LCM::types::gps_t & gps_data);
 	void fillParticles(double theta);
