@@ -7,7 +7,7 @@ using namespace common::LCM::types;
 using namespace SLAM::LCM;
 
 Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
-			   localizer(NUM_PARTICLES),
+			   localizer(NUM_PARTICLES, PERCENT_PREDICTION_PARTICLES),
 			   num_mapped_scans(0),
 			   end_flag(false),
 			   reinitialized_fog(false)

@@ -21,6 +21,7 @@
 #define MIN_Y -50
 #define SQUARE_SIZE 0.5
 #define NUM_PARTICLES 1000
+const static double PERCENT_PREDICTION_PARTICLES = .5;
 
 //localization constants
 #define HIT_LIKELIHOOD_INC_VALUE 1.0
@@ -32,6 +33,11 @@
 
 //Data sheet value 0.5
 #define DEFAULT_FOG_SIGMA 0.5*M_PI/180.0
+
+//Just guessing
+const static double X_PREDICTION_SIGMA = 0.25;
+const static double Y_PREDICTION_SIGMA = 0.25;
+
 
 //mapping constants
 #define INITIAL_MAP_VALUE 128
