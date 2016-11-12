@@ -4,6 +4,8 @@
 #include "Utilities.hpp"
 #include "../lcmtypes/particles_t.hpp"
 #include <queue>
+#include <algorithm>
+#include <utility>
 
 using namespace std;
 using namespace common::LCM::types;
@@ -97,8 +99,8 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
 				double z = pc.cloud[i].scan_line[j].z;
-				if(x < 0)
-					continue;
+//				if(x < 0)
+//					continue;
 			
 				SLAM::rotateIntoGlobalCoordsInPlace(x,y,z, particle_pose);
 				
@@ -169,21 +171,49 @@ void Localizer::setPose(int64_t utime)
 		}
 	}
 
+	//move the particles into a vector for analysis
+	vector<pair<Particle, double> > averaging_particles(NUM_AVERAGE_PARTICLES);
+	for(size_t i = 0; i < NUM_AVERAGE_PARTICLES && !part_queue.empty(); ++i)
+	{
+		averaging_particles[i].first = part_queue.top();
+		averaging_particles[i].second = 0.0;
+		part_queue.pop();
+	}
+
+	for(size_t i = 0; i < averaging_particles.size(); ++i)
+	{
+		for(size_t j = i+1; j < averaging_particles.size(); ++j)
+		{
+			double dx = averaging_particles[i].first.x - averaging_particles[j].first.x;
+			double dy = averaging_particles[i].first.y - averaging_particles[j].first.y;
+			double dist = sqrt(dx*dx + dy*dy);
+
+			averaging_particles[i].second += dist;
+			averaging_particles[j].second += dist;
+		}
+	}
+	
+	sort(averaging_particles.begin(), averaging_particles.end(), [](const pair<Particle,double> &  a, const pair<Particle,double> &  b) { return a.second < b.second;});
+
+	for(size_t i = 0; i < NUM_OUTLIERS_TO_REMOVE; ++i)
+	{
+		averaging_particles.pop_back();
+	}
+
 	double total_x = 0; 
 	double total_y = 0;
 	double total_theta = 0;
 
-	while(!part_queue.empty())
+	for(size_t i = 0; i < averaging_particles.size(); ++i)
 	{
-		total_x += part_queue.top().x;
-		total_y += part_queue.top().y;
-		total_theta += part_queue.top().theta;
-		part_queue.pop();
+		total_x += averaging_particles[i].first.x;
+		total_y += averaging_particles[i].first.y;
+		total_theta += averaging_particles[i].first.theta;
 	}
 
-	last_pose.x = total_x/NUM_AVERAGE_PARTICLES;
-	last_pose.y = total_y/NUM_AVERAGE_PARTICLES;
-	last_pose.theta = total_theta/NUM_AVERAGE_PARTICLES;
+	last_pose.x = total_x/(static_cast<double>(averaging_particles.size()));
+	last_pose.y = total_y/(static_cast<double>(averaging_particles.size()));
+	last_pose.theta = total_theta/(static_cast<double>(averaging_particles.size()));
 	last_pose.utime = utime;
 }
 
@@ -229,10 +259,11 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 	std::vector<Particle> temp_particles(num_predict_particles);
 	
 	//select the particles that will be predicted forward
-	//create the vector of likelihoods (assume likelihoods are bounded 
+	//create the vector of likelihoods (assume likelihoods are bounded)
 	size_t particle_index = 0;
 	size_t num_sampled = 0;
 	double total_likelihood = particles[0].likelihood;
+
 	for(double curr_likelihood = 0.0; 
 		num_sampled < num_predict_particles && particle_index < particles.size();
 		curr_likelihood += 1.0/num_predict_particles)
@@ -263,6 +294,7 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 		particles[i] = temp_particles[i];
 	}
 }
+
 void Localizer::createParticles(int64_t curr_utime)
 {
 	//create particles from last generation of particles
@@ -271,7 +303,7 @@ void Localizer::createParticles(int64_t curr_utime)
 		createPredictionParticles(curr_utime);
 	}
 
-	//add the gps distribution
+	//add the gps and fog distribution
 	random_device rd;
 	mt19937 gen(rd());
 	size_t i = ((last_utime == 0)? 0: num_predict_particles);

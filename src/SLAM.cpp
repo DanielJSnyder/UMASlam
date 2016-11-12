@@ -47,7 +47,6 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 	{
 		end_flag = true;
 	}
-
 	#endif
 }
 
