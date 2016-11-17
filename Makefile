@@ -48,6 +48,9 @@ PointCloudTest: $(OBJ_PATH)/PointCloud.o $(OBJ_PATH)/point_cloud_test.o
 PointCloudPrinter: $(OBJ_PATH)/PointCloudPrinter.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/PointCloudPrinter $(LCM_FLAGS)
 
+PointCloudVis: 
+	$(CXX) $(FLAGS) src/PointCloudVisualizer.cpp  -o $(BIN_PATH)/PointCloudVis $(LCM_FLAGS) $(SFML_FLAGS)
+
 ParticlePrinter: $(OBJ_PATH)/ParticlePrinter.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/ParticlePrinter $(LCM_FLAGS)
 

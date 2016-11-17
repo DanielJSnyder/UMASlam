@@ -72,7 +72,7 @@ point3D_t PointCloudMaker::createPoint2(int64_t utime, double range, double serv
 	// do the calculations
 	double x = range * cos(phi) * cos(theta) + LIDAR_HEIGHT * sin(theta);
 	double y = range * sin(phi);
-	double z = (range * cos(phi) * sin(theta) + LIDAR_HEIGHT * cos(theta));
+	double z = -(range * cos(phi) * sin(theta) + LIDAR_HEIGHT * cos(theta));
 
 	//add the point to the point_cloud
 	point.x = x;

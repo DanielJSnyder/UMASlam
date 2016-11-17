@@ -66,7 +66,6 @@ void Localizer::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 		fog_initialized = true;
 	}
 
-
 	last_theta = (DEG_TO_RAD(fog_data->data) - initial_theta);
 }
 
@@ -95,18 +94,20 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 			for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
 			{
 				if(pc.cloud[i].hit[j] == 0)
+				{
 					continue;
+				}
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
 				double z = pc.cloud[i].scan_line[j].z;
-//				if(x < 0)
-//					continue;
 			
 				SLAM::rotateIntoGlobalCoordsInPlace(x,y,z, particle_pose);
 				
 				//just do simple hit or miss as lidar sigma < 30mm from data sheet
 				if(map.at(x, y) > HIT_THRESHOLD)//if the square is considered full, add to likelihood
-				{ curr_particle_likelihood += HIT_LIKELIHOOD_INC_VALUE; }
+				{ 
+					curr_particle_likelihood += HIT_LIKELIHOOD_INC_VALUE; 
+				}
 			}
 		}
 		p.likelihood = curr_particle_likelihood;
@@ -115,7 +116,6 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 	boundLikelihoods();
 	setPose(pc.utime);
 	publishPose();
-	//publishParticles();
 }
 
 void Localizer::boundLikelihoods()

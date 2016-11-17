@@ -49,7 +49,7 @@ static const double EMPTY_SQUARE_INC = -0.025;
 static const double LIDAR_HEIGHT = 0.15;
 
 //fake compass stuff
-#define USE_FAKE_COMPASS 0
+#define USE_FAKE_COMPASS 1
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 15
 
 //Drawing stuff
