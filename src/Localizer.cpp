@@ -108,6 +108,10 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 				{ 
 					curr_particle_likelihood += HIT_LIKELIHOOD_INC_VALUE; 
 				}
+				else if(map.at(x,y) < MISS_THRESHOLD)
+				{
+					curr_particle_likelihood += MISS_LIKELIHOOD_DEC_VALUE;
+				}
 			}
 		}
 		p.likelihood = curr_particle_likelihood;
@@ -121,14 +125,17 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 void Localizer::boundLikelihoods()
 {
 	double total_particle_likelihood = 0;
+	double min_likelihood = particles[0].likelihood;
 
 	for(Particle & p : particles)
 	{
+		min_likelihood = min(min_likelihood, p.likelihood);
 		total_particle_likelihood += p.likelihood;
 	}
+	total_particle_likelihood -= min_likelihood * particles.size();
 	for(Particle & p : particles)
 	{
-		p.likelihood /= total_particle_likelihood;
+		p.likelihood = (p.likelihood - min_likelihood) /total_particle_likelihood;
 	}
 
 //	size_t max_likelihood_location = 0;

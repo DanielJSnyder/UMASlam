@@ -23,7 +23,9 @@
 
 //localization constants
 #define HIT_LIKELIHOOD_INC_VALUE 1.0
+const static double MISS_LIKELIHOOD_DEC_VALUE = -2.0;
 #define HIT_THRESHOLD 175
+#define MISS_THRESHOLD 100
 #define NUM_AVERAGE_PARTICLES 5
 #define NUM_OUTLIERS_TO_REMOVE 2
 #define NUM_PARTICLES 2000
