@@ -9,7 +9,7 @@ OBJ_PATH = ./obj
 SRC_PATH = ./src
 TEST_PATH = ./unit_tests
 
-all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter ParticlePrinter
+all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter ParticlePrinter PointCloudVis
 
 optimized: FLAGS += $(OPTIMIZATION_FLAGS)
 optimized: all
