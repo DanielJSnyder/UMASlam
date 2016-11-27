@@ -1,6 +1,8 @@
 #ifndef __SLAM_CONSTANTS_HPP__
 #define __SLAM_CONSTANTS_HPP__
 
+#include <cmath> //for M_PI
+
 #define GPS_CHANNEL "SENSOR_GPS"
 #define FOG_CHANNEL "SENSOR_FOG"
 #define LASER_SCAN_CHANNEL "SENSOR_LASER"
@@ -22,24 +24,34 @@
 #define SQUARE_SIZE 0.5
 
 //localization constants
-#define HIT_LIKELIHOOD_INC_VALUE 1.0
+const static int HIT_THRESHOLD = 175;
+const static int MISS_THRESHOLD = 100;
+const static int NUM_AVERAGE_PARTICLES = 5;
+const static int NUM_OUTLIERS_TO_REMOVE = 2;
+const static int NUM_PARTICLES = 2000;
+
+//Lidar related localization coefficients
+const static double HIT_LIKELIHOOD_INC_VALUE = 1.0;
 const static double MISS_LIKELIHOOD_DEC_VALUE = -2.0;
-#define HIT_THRESHOLD 175
-#define MISS_THRESHOLD 100
-#define NUM_AVERAGE_PARTICLES 5
-#define NUM_OUTLIERS_TO_REMOVE 2
-#define NUM_PARTICLES 2000
-const static double PERCENT_PREDICTION_PARTICLES = 0.50;
 
+//GPS related localization coefficients
+//unit is meters
 //Data sheet values 1.5
-#define DEFAULT_GPS_SIGMA 1.0
+const static double DEFAULT_GPS_SIGMA = 1.0;
 
+//FOG related localization coefficients
+//unit is radians
 //Data sheet value 0.5
-#define DEFAULT_FOG_SIGMA 0.5*M_PI/180.0
+const static double DEFAULT_FOG_SIGMA = 0.5*M_PI/180.0;
 
-//Just guessing
+//Localization coefficients related to predicting particles forward with gps
+const static double PERCENT_PREDICTION_PARTICLES = 0.50;
 const static double X_PREDICTION_SIGMA = 0.25;
 const static double Y_PREDICTION_SIGMA = 0.25;
+
+//Localization constants that relate the relative beliefs in the various sensors
+const static double LASER_LIKELIHOOD_COEFFICIENT = 5.0;
+const static double GPS_LIKELIHOOD_COEFFICIENT = 1.0;
 
 //mapping constants
 #define INITIAL_MAP_VALUE 128

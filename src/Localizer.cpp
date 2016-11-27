@@ -76,13 +76,61 @@ void Localizer::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 	weightParticles(*pc);
 }
 
+void Localizer::updateInternals(int64_t utime)
+{
+	previous_gen_coord = last_coord;
+	last_utime = utime;
+}
+
 void Localizer::weightParticles(const slam_pc_t & pc)
 {
+	// clear the old likelihoods and create the particles that will be weighted
+	clearLikelihoods();
 	createParticles(pc.utime);
-	previous_gen_coord = last_coord;
-	last_utime = pc.utime;
-	for(Particle & p: particles)
+	
+	// weight the Particles based on the sensor data
+	weightParticlesWithGPS(last_coord);
+	weightParticlesWithCloud(pc);
+
+	//set pose
+	setPose(pc.utime);
+	publishPose();
+
+	//clean up internals
+	updateInternals(pc.utime);
+}
+
+void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
+{
+
+	constexpr double square_root_2pi = 2.50662827463100050241577;//obtained from wolfram alpha
+	const double gaussian_coeff = 1.0/(square_root_2pi * x_gps_dist.stddev());
+	
+	for(Particle & p : particles)
 	{
+		double dx = GPS_basis.first - p.x;
+		double dy = GPS_basis.second - p.y;
+		double distance_from_last_gps_point_m = sqrt(dx*dx + dy*dy);
+
+		//error in gps is gaussian
+		double numerator = distance_from_last_gps_point_m - x_gps_dist.mean();
+		double denom = 2.0 * x_gps_dist.stddev();
+		double gps_likelihood = gaussian_coeff * exp(-(numerator * numerator)/(denom));
+
+		//Don't need to bound the likelihoods,
+		//since the gaussian already makes them between 0 and 1
+		//so just add it to the particle
+		p.likelihood += gps_likelihood * GPS_LIKELIHOOD_COEFFICIENT;
+	}
+}
+
+void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
+{
+	vector<double> temp_likelihoods(particles.size(), 0);
+	size_t num_hits = 0;
+	for(size_t i = 0; i < particles.size(); ++i)
+	{
+		Particle & p = particles[i];
 		double curr_particle_likelihood = 0;
 		SLAM::Pose particle_pose(p.x, p.y,p.theta, 0);
 
@@ -96,6 +144,11 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 				if(pc.cloud[i].hit[j] == 0)
 				{
 					continue;
+				}
+				else
+				{
+					//increment the number of hits
+					++num_hits;
 				}
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
@@ -114,48 +167,35 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 				}
 			}
 		}
-		p.likelihood = curr_particle_likelihood;
+		temp_likelihoods[i] = curr_particle_likelihood;
 	}
 
-	boundLikelihoods();
-	setPose(pc.utime);
-	publishPose();
+	double min_laser_likelihood = MISS_LIKELIHOOD_DEC_VALUE * num_hits;
+	double max_laser_likelihood = HIT_LIKELIHOOD_INC_VALUE * num_hits;
+	boundLikelihoods(temp_likelihoods, min_laser_likelihood, max_laser_likelihood);
+
+	for(size_t i = 0; i < temp_likelihoods.size(); ++i)
+	{
+		particles[i].likelihood += temp_likelihoods[i] * LASER_LIKELIHOOD_COEFFICIENT;
+	}
 }
 
-void Localizer::boundLikelihoods()
+void Localizer::clearLikelihoods()
 {
-	double total_particle_likelihood = 0;
-	double min_likelihood = particles[0].likelihood;
-
 	for(Particle & p : particles)
 	{
-		min_likelihood = min(min_likelihood, p.likelihood);
-		total_particle_likelihood += p.likelihood;
+		p.likelihood = 0;
 	}
-	total_particle_likelihood -= min_likelihood * particles.size();
-	for(Particle & p : particles)
-	{
-		p.likelihood = (p.likelihood - min_likelihood) /total_particle_likelihood;
-	}
+}
 
-//	size_t max_likelihood_location = 0;
-//	double max_likelihood = particles[0].likelihood;
-//	for(size_t i = 1; i < particles.size(); ++i)
-//	{
-//		if(particles[i].likelihood > max_likelihood)
-//		{
-//			max_likelihood = particles[i].likelihood;
-//			max_likelihood_location = i;
-//		}
-//	}
-//	if (max_likelihood_location < num_predict_particles)
-//	{
-//		cout << "Chose a predicted particle" << endl;
-//	}
-//	else
-//	{
-//		cout << "Did not choose a predicted particle" << endl;
-//	}
+void Localizer::boundLikelihoods(vector<double> & likelihoods, double min_likelihood, double max_likelihood) const
+{
+	double max_for_division = max_likelihood - min_likelihood;
+	for(double & d : likelihoods)
+	{
+		d = (d - min_likelihood)/max_for_division;
+		d = min(1.0, max(0.0, d));
+	}
 }
 
 void Localizer::setPose(int64_t utime)

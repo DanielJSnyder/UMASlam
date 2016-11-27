@@ -67,11 +67,15 @@ private:
 	void createParticles(int64_t utime);
 
 	void weightParticles(const SLAM::LCM::slam_pc_t & pc);
+	void weightParticlesWithGPS(const std::pair<double, double> & GPS_basis);
+	void weightParticlesWithCloud(const SLAM::LCM::slam_pc_t & pc);
 
-	void boundLikelihoods();
+	void boundLikelihoods(std::vector<double> & likelihoods, double min_likelihood, double max_likelihood) const;
 	void setPose(int64_t utime);
 	void publishPose() const;
 	void publishParticles() const;
+	void clearLikelihoods();
+	void updateInternals(int64_t utime);
 
 	GridMap map;
 	std::vector<Particle> particles;
