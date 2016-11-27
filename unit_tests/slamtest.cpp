@@ -25,8 +25,7 @@ int main(int argc, char ** argv)
 		while(1)
 		{
 			drawer.switchMap(s.getMap());
-			cout << "switching the map" << endl;
-				l.handle();
+			l.handle();
 		}
 	}
 	else

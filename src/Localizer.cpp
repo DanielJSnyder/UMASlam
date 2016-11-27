@@ -102,7 +102,6 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 
 void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
 {
-
 	constexpr double square_root_2pi = 2.50662827463100050241577;//obtained from wolfram alpha
 	const double gaussian_coeff = 1.0/(square_root_2pi * x_gps_dist.stddev());
 	
@@ -116,6 +115,7 @@ void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
 		double numerator = distance_from_last_gps_point_m - x_gps_dist.mean();
 		double denom = 2.0 * x_gps_dist.stddev();
 		double gps_likelihood = gaussian_coeff * exp(-(numerator * numerator)/(denom));
+
 
 		//Don't need to bound the likelihoods,
 		//since the gaussian already makes them between 0 and 1
@@ -141,18 +141,20 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 			SLAM::logDebugMsg("scan size: " + to_string(pc.cloud[i].scan_line.size()) + "\n", 1);
 			for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
 			{
-				if(pc.cloud[i].hit[j] == 0)
+				if(pc.cloud[i].hit[j] == 0 )
 				{
 					continue;
 				}
-				else
-				{
-					//increment the number of hits
-					++num_hits;
-				}
+				num_hits++;
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
 				double z = pc.cloud[i].scan_line[j].z;
+				double angle = atan2(y,x);
+
+				if(abs(angle * 180.0/M_PI ) > LIDAR_MAP_RANGE_DEG)
+				{
+					continue;
+				}
 			
 				SLAM::rotateIntoGlobalCoordsInPlace(x,y,z, particle_pose);
 				
@@ -167,8 +169,18 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 				}
 			}
 		}
+		if(num_hits<= MINIMUM_LIDAR_HITS_TO_WEIGHT)//if the scan is empty, exit early
+		{
+			return;
+		}
 		temp_likelihoods[i] = curr_particle_likelihood;
 	}
+
+	num_hits /= particles.size();
+	//debugging
+	static int gen_num = 0;
+	gen_num++;
+	cout << "gen_num: " << gen_num << "\thits: " << num_hits << endl;
 
 	double min_laser_likelihood = MISS_LIKELIHOOD_DEC_VALUE * num_hits;
 	double max_laser_likelihood = HIT_LIKELIHOOD_INC_VALUE * num_hits;

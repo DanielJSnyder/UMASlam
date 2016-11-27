@@ -33,11 +33,12 @@ const static int NUM_PARTICLES = 2000;
 //Lidar related localization coefficients
 const static double HIT_LIKELIHOOD_INC_VALUE = 1.0;
 const static double MISS_LIKELIHOOD_DEC_VALUE = -2.0;
+const static int MINIMUM_LIDAR_HITS_TO_WEIGHT = 100;
 
 //GPS related localization coefficients
 //unit is meters
 //Data sheet values 1.5
-const static double DEFAULT_GPS_SIGMA = 1.0;
+const static double DEFAULT_GPS_SIGMA = 1.5;
 
 //FOG related localization coefficients
 //unit is radians
@@ -50,13 +51,14 @@ const static double X_PREDICTION_SIGMA = 0.25;
 const static double Y_PREDICTION_SIGMA = 0.25;
 
 //Localization constants that relate the relative beliefs in the various sensors
-const static double LASER_LIKELIHOOD_COEFFICIENT = 5.0;
-const static double GPS_LIKELIHOOD_COEFFICIENT = 1.0;
+const static double LASER_LIKELIHOOD_COEFFICIENT = 1.0;
+const static double GPS_LIKELIHOOD_COEFFICIENT = 2.0;
 
 //mapping constants
 #define INITIAL_MAP_VALUE 128
 #define FULL_SQUARE_INC 5.0
 static const double EMPTY_SQUARE_INC = -0.025;
+static const double LIDAR_MAP_RANGE_DEG = 45.0;
 
 //point cloud constants
 #define DEFAULT_MISS_RANGE 15
