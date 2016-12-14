@@ -151,6 +151,7 @@ void PointCloudMaker::extractPointCloud()
 
 		//add the scan to the point_cloud
 		publish_pc.cloud.push_back(curr_scan);
+		publish_pc.utime = max(curr_scan.utime, publish_pc.utime);
 	}
 
 	publish_pc.num_scans = publish_pc.cloud.size();

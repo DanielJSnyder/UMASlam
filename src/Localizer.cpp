@@ -279,6 +279,7 @@ void Localizer::setPose(int64_t utime)
 void Localizer::publishPose() const
 {
 	state_t pub_state;
+	pub_state.utime = last_pose.utime;
 	pub_state.x = last_pose.x;
 	pub_state.y = last_pose.y;
 	pub_state.yaw = last_pose.theta;
