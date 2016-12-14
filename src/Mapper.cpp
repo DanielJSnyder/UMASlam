@@ -63,6 +63,14 @@ SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 	double diff_x = p2.x - p1.x;
 	double diff_y = p2.y - p1.y;
 	double diff_theta = p2.theta - p1.theta;
+	if(diff_theta > M_PI)
+	{
+		diff_theta -= 2.0*M_PI;
+	}
+	else if(diff_theta < -M_PI)
+	{
+		diff_theta += 2.0*M_PI;
+	}
 	double proportion = 
 		static_cast<double>(time - p1.utime)/(static_cast<double>(diff_utime));
 	return SLAM::Pose(proportion*(diff_x) + p1.x,

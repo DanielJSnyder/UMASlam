@@ -22,8 +22,7 @@ Localizer::Localizer(int num_particles, double predict_percent) :
 
 Localizer::Localizer(int num_particles, double predict_percent, double gps_sigma, double fog_sigma): 
 	particles(num_particles),
-	x_gps_dist(0, gps_sigma),
-	y_gps_dist(0, gps_sigma),
+	gps_dist(0, gps_sigma),
 	theta_fog_dist(0, fog_sigma),
 	x_predict_dist(0, X_PREDICTION_SIGMA),
 	y_predict_dist(0, Y_PREDICTION_SIGMA),
@@ -90,6 +89,7 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 	
 	// weight the Particles based on the sensor data
 	weightParticlesWithGPS(last_coord);
+	weightParticlesWithFOG(last_theta);
 	weightParticlesWithCloud(pc);
 
 	//set pose
@@ -103,7 +103,7 @@ void Localizer::weightParticles(const slam_pc_t & pc)
 void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
 {
 	constexpr double square_root_2pi = 2.50662827463100050241577;//obtained from wolfram alpha
-	const double gaussian_coeff = 1.0/(square_root_2pi * x_gps_dist.stddev());
+	const double gaussian_coeff = 1.0/(square_root_2pi * gps_dist.stddev());
 	
 	for(Particle & p : particles)
 	{
@@ -112,15 +112,34 @@ void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
 		double distance_from_last_gps_point_m = sqrt(dx*dx + dy*dy);
 
 		//error in gps is gaussian
-		double numerator = distance_from_last_gps_point_m - x_gps_dist.mean();
-		double denom = 2.0 * x_gps_dist.stddev();
+		double numerator = distance_from_last_gps_point_m - gps_dist.mean();
+		double denom = 2.0 * gps_dist.stddev();
 		double gps_likelihood = gaussian_coeff * exp(-(numerator * numerator)/(denom));
-
 
 		//Don't need to bound the likelihoods,
 		//since the gaussian already makes them between 0 and 1
 		//so just add it to the particle
 		p.likelihood += gps_likelihood * GPS_LIKELIHOOD_COEFFICIENT;
+	}
+}
+
+void Localizer::weightParticlesWithFOG(const double last_theta)
+{
+	constexpr double square_root_2pi = 2.50662827463100050241577;//obtained from wolfram alpha
+	const double gaussian_coeff = 1.0/(square_root_2pi * theta_fog_dist.stddev());
+	
+	for(Particle & p : particles)
+	{
+		double delta_theta = p.theta - last_theta;
+		//error in fog is gaussian
+		double numerator = delta_theta - theta_fog_dist.mean();
+		double denom = 2.0 * theta_fog_dist.stddev();
+		double fog_likelihood = gaussian_coeff * exp(-(numerator * numerator)/(denom));
+
+		//Don't need to bound the likelihoods,
+		//since the gaussian already makes them between 0 and 1
+		//so just add it to the particle
+		p.likelihood += fog_likelihood * FOG_LIKELIHOOD_COEFFICIENT;
 	}
 }
 
@@ -177,10 +196,6 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 	}
 
 	num_hits /= particles.size();
-	//debugging
-	static int gen_num = 0;
-	gen_num++;
-	cout << "gen_num: " << gen_num << "\thits: " << num_hits << endl;
 
 	double min_laser_likelihood = MISS_LIKELIHOOD_DEC_VALUE * num_hits;
 	double max_laser_likelihood = HIT_LIKELIHOOD_INC_VALUE * num_hits;
@@ -364,13 +379,16 @@ void Localizer::createParticles(int64_t curr_utime)
 	}
 
 	//add the gps and fog distribution
+	uniform_real_distribution<double> rotational_distr(-M_PI, M_PI);
 	random_device rd;
 	mt19937 gen(rd());
 	size_t i = ((last_utime == 0)? 0: num_predict_particles);
 	for(; i < particles.size(); ++i)
 	{
-		particles[i].x = last_coord.first + x_gps_dist(gen);
-		particles[i].y = last_coord.second + y_gps_dist(gen);
+		double dist_from_mean = gps_dist(gen);
+		double rotation_angle = rotational_distr(gen);
+		particles[i].x = last_coord.first + dist_from_mean * std::cos(rotation_angle);
+		particles[i].y = last_coord.second + dist_from_mean * std::sin(rotation_angle);
 		particles[i].theta = last_theta + theta_fog_dist(gen);
 	}
 }

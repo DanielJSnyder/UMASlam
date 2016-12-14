@@ -68,6 +68,7 @@ private:
 
 	void weightParticles(const SLAM::LCM::slam_pc_t & pc);
 	void weightParticlesWithGPS(const std::pair<double, double> & GPS_basis);
+	void weightParticlesWithFOG(const double last_theta);
 	void weightParticlesWithCloud(const SLAM::LCM::slam_pc_t & pc);
 
 	void boundLikelihoods(std::vector<double> & likelihoods, double min_likelihood, double max_likelihood) const;
@@ -86,8 +87,7 @@ private:
 
 	CoordTransformer coord_transformer;
 
-	std::normal_distribution<> x_gps_dist;
-	std::normal_distribution<> y_gps_dist;
+	std::normal_distribution<> gps_dist;
 	std::normal_distribution<> theta_fog_dist;
 	std::normal_distribution<> x_predict_dist;
 	std::normal_distribution<> y_predict_dist;
