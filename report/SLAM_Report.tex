@@ -1,0 +1,197 @@
+\documentclass[10pt]{IEEEtran}
+\usepackage{lipsum}
+\begin{document}
+\title{SLAM paper draft}
+\author{Daniel~Snyder
+\thanks{Put thanks here}
+}
+\maketitle
+\begin{abstract}
+One of the fundamental problems in autonomous mobile robotics is that of simultaneous
+localization and mapping (SLAM).  Solving SLAM involves the robot simultaneously
+determining both its position in the environment (localization) and what its environment
+is (mapping), which are problems dependent on each other.  This problem is essential to
+many of the other problems present in autonomous mobile robotics.  If a robot does not
+know its location and its environment it cannot complete tasks such as navigation.  
+ 
+There exists many approaches to solving the SLAM problem, and each approach has
+its own drawbacks and advantages.  The goal of this project is to implement and
+compare multiple solution methods to determine their advantages within a specific
+domain.  The solutions will be evaluated in the context of an aquatic autonomous surface
+vehicle (boat) designed and built by the UM::Autonomy student team at the University
+of Michigan for participation in the International Roboboat competition hosted by
+the Association for Unmanned Vehicle Systems International (AUVSI).   
+  
+In particular a graph-based solution using the incremental smoothing and mapping
+(ISAM) method, and a solution using an occupancy grid for mapping along with a 
+particle filter for localization (GM-MCL) will be implemented and compared
+to the Extended Kalmann Filter (EKF) based SLAM that has been implemented by previous
+UM::Autonomy team members.  Their performance will be evaluated based not only on
+actual task performance, but also on the ease of understanding and maintainability
+of the system over time.  The focus on ease of understanding and maintainability
+arises from past challenges the current EKF SLAM implementation has presented to the team. 
+\end{abstract}
+
+\section{Overview of the SLAM Problem}
+SLAM is a problem fundamental to autonomous robotics.  In order for a robot to accurately
+traverse and interact with its environment, it needs to know what the environment is 
+(mapping) and where it is in the environment (localization).  While for some applications it
+is possible to generate a map in advance, for many applications, it is necessary to perform 
+both localization and mapping at the same time.  The difficulty lies in that in order to 
+accurately map, the robot must know its location, and that in order to find its location, the
+robot must have some form of a map.  SLAM techniques attempt to solve this problem though 
+various methods.  This paper will look at two such methods.
+
+\section{Research Goals}
+The primary goal of this reasearch is to create a SLAM system that 
+UM::Autonomy can use for years to come.  Inherent within this goal are a few criteria that
+are required for the goal to be achieved. These criteria fall into three categories:
+performance, useability, and maintainability.
+
+\subsection{Performance}
+The first set of criteria that this research must satisfy is that of performance
+requirements.  The end product must work reasonably well in a multitude of environment and
+must fit within the computing capabilities of the surface vehicle.  The end product
+should be able to perform online SLAM, approximating a solution to the SLAM problem in 
+real time, while allowing the team to run other code simultaneously.
+
+\subsection{Useability}
+Beyond performance, the SLAM system produced must be easy to use.  A majority of the 
+people using the system will not have much knowledge of how the SLAM problem is solved,
+so its use cannot require multiple steps or indepth knowledge of the solution method.
+
+\subsection{Maintainability}
+The maintainability of the system is the most crucial to assuring its prolonged useage.
+In the past the team has neglected the SLAM system due to its complexity and over time,
+this has caused the system to degrade in quality.  Large consideration therefore will
+be put into code quality and design.  The code should be designed with maintainability in
+mind to prevent degredation over time.
+
+\section{Document Purpose}
+This document is meant to serve two purposes.  The first purpose is to provide a 
+technical explaination of the research conducted on the SLAM problem.  The second
+purpose is to serve as a technical reference for UM::Autonomy for understanding and extending
+the SLAM solution that is presented.
+
+\section{Capabilities of the Autonomous Surface Vehicle}
+As the system was designed for use with the Autonomouse Surface Vehicle (ASV) that is
+built by UM::Autonomy, the solution approaches are heavily dependant on the capabilities of
+the platform.  The ASV is equipped with a Global Positioning System (GPS), a fiber optic 
+gyroscope (FOG) and a panning Lidar with a 270 degree field of view.  Together, these sensors
+allow the ASV to obtain an approximate global pose and to survey the local area.
+
+Beyond the current sensors on the ASV, the team is also planning to add an inertial 
+measurement unit (IMU) and a compass.  In order to meet maintainability requirements, it
+is important that these sensors are also considered when performing the research.
+
+\section{Solution approaches}
+
+\subsection{Incremental Smoothing and Mapping}
+ISAM draws on the work of Kaess et al.\cite{}
+\cite{}
+
+\subsection{Occupancy Grid based Mapping and Monte-Carlo Localization}
+In contrast to ISAM, the GM-MCL is not a feature based SLAM method.  Rather than representing
+the map and the robot's location in it as a set of state vectors, the map is represented
+as a grid, where each cell contains a probability that the area of the world it represents
+contains some object.  
+
+Once the occupancy grid has been created, Monte-Carlo Localization (MCL) is used to find the
+location of the robot within the map.  Proposed by Dellaert et al \cite{MCL}
+
+\section{SLAM Related Utilities}
+In order to create a SLAM program that is performant, useable, and maintainable, a few 
+SLAM related utilities were created during development.  These utilities are a 3D Point Cloud
+that is generated from a panning LIDAR, and a simulated compass.
+
+\subsection{3D Point Cloud Generation}
+% Make sure to note about the adding of hits
+One feature of the robotic boat is a panning LIDAR that allows for generation of a three 
+dimensional point cloud.  This point cloud allows for detection of objects floating on the
+water's surface in addition to objects that are raised off the water's surface.  
+
+% put technical details in here
+\subsection{Compass spoofing}
+A challenge that the team has faced in the past few years is the lack of a compass.  
+The boat uses the NED (North East Down) Coordinate System, so if North cannot be found, 
+the coordinate system may be set incorrectly.  In the past the team has solved this by
+starting the boat facing North, a process that is subject to human error. %continue here
+
+\section{In depth explaination of occupancy grid and particle filter approach}
+
+\subsection{Initialization}% may not be needed
+
+\subsection{Filling the Map}
+
+\subsection{Creating Particles to be Filtered}
+In prior implementations particles for the current generation were created from sampling from
+the previous generation of particles, and applying a change in location based on odometry 
+data plus some error.  For the ASV however, there is currently no sense of odometry that 
+can be used to link the previous generation to the current generation.  Additionally, the 
+team will be adding an IMU to the ASV, giving a sense of odometry.  To allow for easy 
+integration of the IMU, two types of particles, distinguished by the that creates them,
+were developed; generational particles and non-generational particles.
+
+%clean up this paragraph
+After generating the set of particles from the two methods, the particles only contain X and
+Y coordinates.  To get the theta for each particle, each particle samples from a gaussian
+distribution centered at the last FOG measurement.  This generates a set of possible yaws
+for the ASV.  These particles are then weighted based on lidar data.
+
+\subsubsection{Generational Particles}
+Generational particles are particles that are created by sampling the previous generation of
+particles, and predicting them forward based on odometry data. Currently this is done using
+the change in GPS data to predict a particle forward.  However, since GPS gives a sense of 
+global location rather than change in local location, it is not an ideal source of odometry
+data.  It is recommended that an IMU is used to generate the odometry data, even though that
+is outside of the ASV's current capabilities.  Despite the lack of an IMU, this method was
+developed to ease extension of the code.  Having the framework in place to generate 
+generational particles allows for easy IMU integration, preventing a potential source of 
+code quality degredation.
+
+\subsubsection{Non-Generational Particles}
+Non-generational particles are particles created from sampling a two dimensional gaussian
+distribution whose mean is the last received GPS coordinate.  This creates a set of particles
+that are independant of the previous generation.  The benefits of this approach lie in its 
+ability to correct for symmetric environments.  Since GPS is a global position, it is 
+more robust to errors created by a misprediction in locally symmetric maps.  
+By using non-generational particles, the progam assures that there always exists some 
+particles in the area closest to the global location of the ASV. %reword this
+
+%This may not be the correct place for this
+Another benefit to the non-generational approach is that it allows for GPS only localization.
+By using only non-generational particles and weighting based only on GPS, the pose will 
+be determined based only on the GPS location.
+
+\subsection{Weighting the particles}
+\subsubsection{Point Cloud Weight Generation}
+\subsubsection{GPS Based Weight Generation}
+\subsubsection{Combining Various Sensors}
+
+
+\section{Observations}
+\subsection{ability to recover from symmetric environments}
+
+\section{Results}
+\subsection{Analysis of Maintainability of Two Approaches}
+\subsection{Overall Results}
+\subsection{Effects of varying grid size}
+\subsection{Effects of varying number of particles}
+\subsection{Effects of varying GPS Gaussian Distribution Sigma}
+\subsection{Effects of increasing number of generational particles}
+\subsection{Effects of changing weights for combining sensors}
+\subsection{Effects of changing lidar hit and miss likelihoods}
+
+
+\section{Conclusions}
+
+\section{Recommended Approach to Future Extensions}
+\subsection{Adding a compass}
+\subsection{Adding an IMU}
+
+\appendix
+\section{Tuneable Constants}
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,SLAM_Report}
+\end{document}
