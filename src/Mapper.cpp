@@ -31,22 +31,53 @@ void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
 
 SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 {
-	return poses.back();
 	//find the pose closest to the time (assume movement between poses is neglegible)
-	SLAM::Pose closest_pose = poses.front();
-	int64_t t_diff = abs(closest_pose.utime - time);
-	for(const SLAM::Pose p : poses)
+	size_t i = 0;
+	for(i = 0; i < poses.size(); ++i)
 	{
-		int64_t diff = abs(p.utime - time);
-		if(diff < t_diff)
+		if(time < poses[i].utime)
 		{
-			closest_pose = p;
-			t_diff = diff;
+			break;
 		}
 	}
-	return closest_pose;
-}
 
+	//i now represents the pose after the lidar scan time
+	SLAM::Pose p1;
+	SLAM::Pose p2;
+	if(i == 0)
+	{
+		return poses.front();
+	}
+	else if(poses.size() == i)
+	{
+		p1 = poses[i-2];
+		p2 = poses[i-1];
+	}
+	else
+	{
+		p1 = poses[i-1];
+		p2 = poses[i];
+	}
+
+	int64_t diff_utime = p2.utime - p1.utime;
+	double diff_x = p2.x - p1.x;
+	double diff_y = p2.y - p1.y;
+	double diff_theta = p2.theta - p1.theta;
+	if(diff_theta > M_PI)
+	{
+		diff_theta -= 2.0*M_PI;
+	}
+	else if(diff_theta < -M_PI)
+	{
+		diff_theta += 2.0*M_PI;
+	}
+	double proportion = 
+		static_cast<double>(time - p1.utime)/(static_cast<double>(diff_utime));
+	return SLAM::Pose(proportion*(diff_x) + p1.x,
+					  proportion*(diff_y) + p1.y,
+					  proportion*(diff_theta) + p1.theta,
+					  time);
+}
 void Mapper::addToMap(const slam_pc_t & pc)
 {
 	grid_updates.clear();
