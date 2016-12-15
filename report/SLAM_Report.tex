@@ -1,9 +1,13 @@
 \documentclass[10pt]{IEEEtran}
 \usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[]{algorithm2e}
+\RestyleAlgo{boxed}
 \begin{document}
 \title{SLAM paper draft}
 \author{Daniel~Snyder
-\thanks{Put thanks here}
+ethanks{Put thanks here}
 }
 \maketitle
 \begin{abstract}
@@ -23,7 +27,7 @@ of Michigan for participation in the International Roboboat competition hosted b
 the Association for Unmanned Vehicle Systems International (AUVSI).   
   
 In particular a graph-based solution using the incremental smoothing and mapping
-(ISAM) method, and a solution using an occupancy grid for mapping along with a 
+(iSAM) method, and a solution using an occupancy grid for mapping along with a 
 particle filter for localization (GM-MCL) will be implemented and compared
 to the Extended Kalmann Filter (EKF) based SLAM that has been implemented by previous
 UM::Autonomy team members.  Their performance will be evaluated based not only on
@@ -87,41 +91,245 @@ is important that these sensors are also considered when performing the research
 \section{Solution approaches}
 
 \subsection{Incremental Smoothing and Mapping}
-ISAM draws on the work of Kaess et al.\cite{}
+iSAM draws on the work of Kaess et al.\cite{}
 \cite{}
 
 \subsection{Occupancy Grid based Mapping and Monte-Carlo Localization}
-In contrast to ISAM, the GM-MCL is not a feature based SLAM method.  Rather than representing
+In contrast to iSAM, the GM-MCL is not a feature based SLAM method.  Rather than representing
 the map and the robot's location in it as a set of state vectors, the map is represented
 as a grid, where each cell contains a probability that the area of the world it represents
-contains some object.  
+contains some object.  In this way, GM-MCL is based only on the probability that a given area
+of the world contains an  object, rather than the nature of an object.
 
-Once the occupancy grid has been created, Monte-Carlo Localization (MCL) is used to find the
-location of the robot within the map.  Proposed by Dellaert et al \cite{MCL}
+This method is derived from slides made by Dr. Kuipers for EECS 467 at the University of
+Michigan.  The method works by first generating a set of particles all located at the origin
+of a map where all cells have an equal probability of either containing (being full) or
+not containing (being empty) an object.  The first map is then generated from a
+lidar scan and set as the current map.  For every subsequent set of lidar data that comes in,
+Monte-Carlo Localization is first performed, and a new most likely location is selected.
+Then the map is updated based on the lidar data at the new location, generating an
+updated map.  This process is then repeated until termination.  This algorithm
+can be seen in graphical form in Figure \ref{fig:SlamAlg}. 
+
+The primary benefits of this method derive from is its lack of reliance
+on landmark detection and classification.  Due to the nature of the student team, it is 
+beneficial to limit dependencies between the various systems.  Previously, the team had
+relied on SLAM to do the classification and data association for landmarks, which 
+expanded the scope of the SLAM system and created issues with maintaining the old EKF
+implementation
+By separating out landmark related compuational tasks, the 
+algorithm is less dependent on landmark detectors, making it easier to maintain and debug
+since errors within the SLAM system will be less likely to be cause by an error in one of
+its dependencies.
+
+The other benefit of GM-MCL is its simplicity and understandability.  Compared to algorithms
+such as EKF and iSAM, GM-MCL is relatively simple and requires much less understanding in 
+order to develop and maintain.  Past experiences explaining GM-MCL to teammates have shown
+that most of the algorithm can be explained without any reliance on the mathematics and 
+probability theory behind the method.  In the end, this leads to a method that fits the
+criteria for maintainability by being
+
+\begin{figure}
+\includegraphics[width=\columnwidth]{Figures/slamAlg}
+\caption{SLAM Algorithm}
+\label{fig:SlamAlg}
+\end{figure}
+
+\section{Analysis of Approaches}
+In order to accurately analyze the two approaches in the context of the ASV and a student
+team, criteria for analysis must be established.  For performance, useability, and 
+maintainability, various criteria were established by which the methods will be compared.
+These criteria can be seen in Table \ref{fig:AnalysisCriteria}.
+
+\begin{figure}
+\begin{tabular} { r | l }
+\label{fig:AnalysisCriteria}
+	Category & Criteria \\
+	\hline Performance & Computational Resources Required \\
+	Performance & Quality of Map Generated \\
+	Useability & Reliance on Knowledge of SLAM Problem \\
+	Maintainable & Number of External Dependencies \\
+	Maintainable & Amount of Knowledge Required to Maintain \\
+	Maintainable & Difficulty of Implementation
+\end{tabular}
+\end{figure}
+
+\subsection{Performance Criteria Analysis}
+In the end, the GM-MCL approach was found perform better in these criteria than iSAM did.
+When looking at the computational resources required, in contrast to the claims made by 
+Dellaert et al. \cite{iSAM_website} that iSAM is the incredibly efficient and fast, 
+the iSAM implementation requires more computing resources than the GM-MCL approach.  The 
+iSAM backend that was used utilized multiple threads and
+ was a separate program from the front end, and is capable of causing network congestion
+due to the reliance on LCM for communication between the front end and back end.
+In contrast, the GM-MCL implementation is single threaded
+and due to the configurable number of particles used by Monte Carlo Localization, the 
+computational resources required can be decreased or increased based on availaiblity.  It
+is possible that for large data sets, iSAM requires less computational resources, but in
+the context of the ASV, the amount of computational resources were much greater.  This is
+possibly due to the generality of the iSAM approach, where as the GM-MCL approach is tailored
+to the specific needs of the ASV.
+
+When comparing the maps the two methods generated, issues arose.  The iSAM implementation was
+never capable of generating a full map, so the quality of the maps are not comparable.  
+However, since iSAM is state of the art, it will most likely generate a more accurate map.
+Additionally, due to the nature of using an occupancy grid for large
+maps with sparse features, as is the case for the ASV, it is likely that a feature based
+approach will require less memory to maintain and will be easier to share between processes. 
+If both approaches could be accurately compared in this area, it is theorized that iSAM would
+perform better than GM-MCL.
+
+\subsection{Useability Criteria Analysis}
+In terms of useability, GM-MCL is easier to use than the iSAM implementation.  The GM-MCL
+implementation builds a single executable, and the iSAM implementation generated an
+executable for the back-end, another for the front-end, and a third was required for the
+visualization of the map.  Due to the larger amount of executables that need to be run with
+the iSAM implementation, it requies more overhead knowledge as it is possible, and has happened,
+that one executable is forgotten and that is not desireable.  Additionally, the iSAM solution
+is much more reliant on prior knowledge of the SLAM problem.  The method uses more math and 
+requires a deeper understanding of probability thoery to understand how it works, and what is
+going wrong.  Due to this barrier in understanding, GM-MCL appears to be a much more useable
+than the iSAM implementation.
+
+\subsection{Maintainability Criteria Analysis}
+In implementing the iSAM method, it became clear that it was a less maintainable solution
+than the GM-MCL solution.  The iSAM solution was itself an external dependency and had a few 
+other external dependencies.  Due to the complexity of the mathematics surrounding iSAM, it
+was more difficult to develop and there were small differences between an efficient
+implementation and an inefficient implementation.  For the same reason it also became
+apparent that maintaining the iSAM implementation would be very difficult as it could easily
+decay in performance.
+
+\subsection{Conclusion}
+The results of the comparison can be seen in Table \ref{fig:CriteriaComp}.  The GM-MCL
+method was found early on to be much more favorable to the iSAM solution.  The maintainability
+problems that arose in the iSAM solution outweighed the benefits it gave in generating a map.
+\begin{figure}
+\begin{tabular} { r | l  | l}
+	Criteria & iSAM comparison & GM-MCL comparison \\ 
+	\hline Computational Resources Required & &\\
+	Quality of Map Generated & &\\
+	Reliance on Knowledge of SLAM Problem & &  \\
+	Number of External Dependencies  & & \\
+	Amount of Knowledge Required to Maintain & & \\
+	Difficulty of Implementation & &
+\end{tabular}
+\label{fig:CriteriaComp}
+\end{figure}
 
 \section{SLAM Related Utilities}
 In order to create a SLAM program that is performant, useable, and maintainable, a few 
 SLAM related utilities were created during development.  These utilities are a 3D Point Cloud
 that is generated from a panning LIDAR, and a simulated compass.
 
-\subsection{3D Point Cloud Generation}
-% Make sure to note about the adding of hits
+\subsection{3D Point Cloud Generation}\label{pointcloud}
 One feature of the robotic boat is a panning LIDAR that allows for generation of a three 
 dimensional point cloud.  This point cloud allows for detection of objects floating on the
-water's surface in addition to objects that are raised off the water's surface.  
+water's surface in addition to objects that are raised off the water's surface. 
+For this research, a method for transforming the scans generated by the point cloud was 
+developed.  
 
-% put technical details in here
-\subsection{Compass spoofing}
+The method uses quaterions to take a lidar return from \(<r, \phi, \theta>\) to 
+\(x,y,z\) which represented the forward, right and down directions respectively.  
+This transformation can be seen in equations \ref{eq:Qx}, \ref{eq:Qy}, and \ref{eq:Qz}.
+
+\begin{align}
+	\label{eq:Qx}
+	x = r\cos(\theta)\cos(\phi) + d \sin(\theta) \\
+	\label{eq:Qy}
+	y = -r \sin(\theta) \\
+	\label{eq:Qz}
+	z = r \cos(\phi)\sin(\theta) - d \cos(\theta) 
+\end{align}
+
+A key feature of the point cloud generator is its representation of scans that did not 
+return any information (the scan did not encounter an object within its range).  In order
+to accurately map the empty space that these scans represent, their directional information
+must still be passed to the mapping algorithm.  This information is represented by giving
+each lidar return an associated 8-bit integer that represents whether or not the lidar
+return used to generate the point encountered an object.  If no object is encountered,
+the lidar point is given a default range that it traveled, and is marked as not having 
+encountered an object.  Doing so allows the mapping algorithm to accurately determine
+large amounts of empty space as empty.
+
+\subsection{Simulated Compass}
 A challenge that the team has faced in the past few years is the lack of a compass.  
 The boat uses the NED (North East Down) Coordinate System, so if North cannot be found, 
 the coordinate system may be set incorrectly.  In the past the team has solved this by
-starting the boat facing North, a process that is subject to human error. %continue here
+starting the boat facing North, a process that is subject to human error. To remedy this,
+a method was developed to simulate a compass.  The fake compass listens to changes in GPS
+data, then from the change in gps data, recalculates the offset needed to 
+properly orient the coordinate system properly.  After the ASV has moved a certain amount
+of distance from the origin, the map is reset and given the new offset for the coordinate
+system to be properly oriented, and the SLAM process is restarted with a clear map.
+
+When testing the simulated compass the results showed mostly proper results, with the 
+coordinate system being correctly reoriented in most logs.  However, in sensor logs where 
+the ASV remained still for long periods of time, or was pointed in a direction close to 
+north, meaning that the coordinate system did not need to be reoriented, the simulated
+compass did work properly.  To remedy this, there is an option to turn off the simulated
+compass for logs where it is not necessary.  More investigation as to the source of this
+error is an area for further research.
 
 \section{In depth explaination of occupancy grid and particle filter approach}
+The purpose of this section is to explain in depth the various aspects of the GM-MCL
+solution method.  This section will discuss the specific adjustments made to the generic
+approach to better fit the ASV's application.
 
-\subsection{Initialization}% may not be needed
+\subsection{Initialization}
+There are two different phases of initialization.  The first phase is the compass phase.
+In this phase, the coordinate system is either initialized or reoriented to be a north, east
+down (NED) coordinate frame.  This process is either performed using a compass, or
+a simulated compass, as described previously.  After the coordinate frame is correctly
+oriented, the next phase is initializing the map.  In this phase, the ASV is assumed to not
+move and a configurable number of point clouds are received and the map is generated to
+provide an initial starting point from which to build future maps.
 
 \subsection{Filling the Map}
+The map is filled using returns from the lidar sensor the boat has mounted on the top of
+the deck.  The mapping process takes in the location of the ASV, and the most recent point
+cloud generated by the three dimension point cloud generator discussed in section
+\ref{pointcloud} and uses the three dimensional coordinates that it returns to fill in the 
+map.  For each point generated by the point cloud, the mapping algorithm first transforms
+it from local coordinates to global coordinates.  Then, the algorithm steps along the line
+connecting the boats current location to the location at which the lidar returned.  If the
+current grid cell the algorithm steps into is not where the lidar encountered an object,
+it is marked as empty and the probability that it contains an object is decreased.  When
+the grid cell that the lidar point returned from is reached, the probability
+that an object resides in that area of the map is increased.  However, if the lidar return
+did not encounter an object, as determined by the associated 8-bit integer, the ending grid
+cell is marked as empty.  This process is repeated for all of the points in the point cloud,
+and is summarized in algorithm \ref{mapalg}.
+
+\begin{algorithm}[H]
+	\label{mapalg}
+	\KwData{PointCloud pc, GridMap map, ASV\_Pose pose}
+	\KwResult{Updates the map based on the information in point cloud}
+	\For{3DPoint p in pc}
+	{
+		RotateIntoGlobalCoordintes(p, pose)\;
+		ASV\_Pose curr\_pose = pose\;
+		//gets the cell number that a 3D point resides in\\
+		int end\_cell = map.getCellNumber(p)\;
+		int curr\_cell = map.getCellNumber(curr\_pose)\;
+		\While{curr\_cell != end\_cell}
+		{
+			map.updateAsEmpty(curr\_cell)\; 
+			//step curr\_pose along line connecting pose to p \\
+			stepForward(curr\_pose, pose, p)\;
+			curr\_cell = map.getCellNumber(curr\_pose)\;
+		}
+		\eIf{p.hitObject == 1}
+		{
+			map.updateAsFull(end\_cell)\;
+		}{
+			map.updateAsEmpty(end\_cell)\;
+		}
+	}
+
+	\caption{Algorithm used to update the map based on the point cloud and current location}
+\end{algorithm}
+
 
 \subsection{Creating Particles to be Filtered}
 In prior implementations particles for the current generation were created from sampling from
@@ -132,7 +340,6 @@ team will be adding an IMU to the ASV, giving a sense of odometry.  To allow for
 integration of the IMU, two types of particles, distinguished by the that creates them,
 were developed; generational particles and non-generational particles.
 
-%clean up this paragraph
 After generating the set of particles from the two methods, the particles only contain X and
 Y coordinates.  To get the theta for each particle, each particle samples from a gaussian
 distribution centered at the last FOG measurement.  This generates a set of possible yaws
@@ -164,17 +371,106 @@ By using only non-generational particles and weighting based only on GPS, the po
 be determined based only on the GPS location.
 
 \subsection{Weighting the particles}
+After generating the particles for the current particle filter, it is necessary to determine
+which particle is the most likely position based on sensor data.  This section describes 
+the mechanisms by which particles weighted. Overall, the general priciple is that each sensor
+assigns a weight to a particle that is bounded within a certain range.  This weight is then
+multiplied by a configurable coefficient.  The coefficients were made to be configurable 
+to allow the addition of new sensors and easy tuning and maintenance for the coefficients.
+This section will describe the various methods each sensor uses to generate weights.
+
 \subsubsection{Point Cloud Weight Generation}
+The weight of a particle based on point cloud data is determined by checking how well the
+point cloud matches the map from each particle's pose.  Each point in the point cloud is 
+rotated into global coordinates based on the particle's pose.  Then, if the point was marked
+as hitting an object, the end point of the
+particle is checked to see if there is an object at that location.  If the end cell 
+contains an object, is a hit, the likelihood of the particle is increased.  If the end
+cell does not contain an object, the likelihood is heavily decremented, due to the accuracy
+of the lidar sensor.
+
+This process is repeated for each particle to get a set of weights based on point cloud data.
+These weights are then rescaled to be in the range \([0,1]\) to make sure the point cloud
+weights are always within a given range and are therefore easily comparable to the weights 
+generated by other sensors.
+
+Weight generation based on point cloud data is done using a hit or miss approach for two
+reasons.  The first reason is efficiency, there is a large amount of data in each point cloud
+and doing hit or miss makes processing this data faster than approaches such as stepping
+from the ASV's location to the lidar's end point, and allows the localization to run in real
+time. Additionally, due to representing a three dimension word in two dimensions, it is 
+possible for some lidar scans to be at a different height than others, which could cause
+erroneous assumptions that a lidar return missed an object when in actually went over
+the object.  The hit or miss approach is also applicable here due to the accuracy
+of the lidar the 
+ASV uses.  The lidar has a standard deviation of 30 millimeters, which means that checking
+squares close to the end point would yield minimal additional information due to the square
+size being 0.5 meters.
+
 \subsubsection{GPS Based Weight Generation}
-\subsubsection{Combining Various Sensors}
+The weight of a particle based on GPS is determined by taking the location of each particle
+and finding probability of that location based on the gaussian distrbution that is used to 
+create the non-generational particles.  The weighting based on GPS data has the benefit of 
+increasing the likelihood that the global position is close enough to the last measured GPS 
+point.  By tuning the coefficient for the GPS weights, the most likely particle can be biased
+to be farther from or closer to the last GPS point.
 
+\subsubsection{FOG Based Weight Generation}
+The weight of a particle based on FOG measurements is determined by finding the probability
+of a particles theta based on the guassian distribution used to create the theta for each of
+the particles.  By decreasing the coefficient of theta, the correct rotation of the lidar
+data is more likely to be selected as the actual pose, even if the map is shifted.  
+By increasing the FOG coefficient, the FOG data is believed more, which can be used to dealt 
+with drift in the FOG data overtime.
 
-\section{Observations}
-\subsection{ability to recover from symmetric environments}
+\section{Special Considerations}
+The largest challenge encountered in the course of research was the nature of the ASV.  
+The ASV has limited computational capabilities, and has limited sensing capabilities.  
+To account for these shortcomings, considerations had to be made as to how to address the
+problems faced by the ASV.  This section details some of the special considerations made
+for the ASV.
+
+\subsection{Representing the 3D world in 2D}
+For simplicity, maintainability, and efficiency, it is desireable to represent the world in
+two dimensions (x,y) rather than three (x,y,z).  By representing the world as a
+bird's eye view, numerous problems arise.  The first problem is that of the height of an 
+object.  For a top down view, it is desirable to mark a grid cell as full if at any height,
+an object exists in that cell.  However, the panning lidar does not see all of the
+objects at a given height, leading to some gaps in the data about the three dimensional
+world.  To remedy this, a few steps were taken.  The first step is to limit the range
+of lidar data that is being processed.  By limiting the lidar data to only the data that
+represents all parts of the z axis that are desired, it can be assured that no objects are
+removed from the map due to a lack of information at a given height.  The second
+step taken to better represent the world in two dimensions occurs when filling in the map.
+When filling in the map, if a point cloud ever sees a grid cell as full, it will be marked
+as full for that entire mapping process, no matter how many other lidar returns would
+mark it as empty.  This prevents lidar returns that pass over an object located on the
+water's surface from being removed from the map by lidar scans that pass over it.  By 
+combining these two techniques the three dimensional world is better able to be
+represented using a two dimensional grid.
+
 
 \section{Results}
-\subsection{Analysis of Maintainability of Two Approaches}
-\subsection{Overall Results}
+This section looks into the results of the research.  The overall results will be discussed,
+and then the effects of changing various factors within the SLAM algorithm will be 
+analyzed.  The goal of this is to provide insight into how the algorithm reacts to changes
+and how those changes can be used to adapt and tune the SLAM system to better suit the 
+needs of the ASV.  
+
+Each test is conducted by first changing one variable and comparing it to the baseline.
+The baseline performance is the combination of constants that have been shown to perform
+well in a variety of circumstances.  Testing will be performed on two past sensor logs that
+contain the actual data the ASV received while at the RoboBoat Competition.
+
+The first log is the ASV moving through the obstacle course challenge.  This map 
+should resemble the example obstacle course in the RoboBoat Final Rules, seen in 
+Figure \ref{fig:RoboBoatObs}, with some movement
+in the obstacles.  The obstacles in question are buoys that reside on the water's surface.
+This log tests the performance of the system when there are no long straight surfaces such
+as walls to localize and map on.
+
+\subsection{Baseline Performance}
+
 \subsection{Effects of varying grid size}
 \subsection{Effects of varying number of particles}
 \subsection{Effects of varying GPS Gaussian Distribution Sigma}

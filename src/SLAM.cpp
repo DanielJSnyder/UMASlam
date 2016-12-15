@@ -30,6 +30,7 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 	{
 		++num_mapped_scans;
 	}
+
 	//sets scope for lock guard
 	{
 		std::lock_guard<std::mutex> map_lock(map_mut);

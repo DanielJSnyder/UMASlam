@@ -57,6 +57,9 @@ ParticlePrinter: $(OBJ_PATH)/ParticlePrinter.o
 test: GridTest MapperTest
 	./bin/GridTest >/dev/null
 
+report:
+	$(MAKE) -C report 
+
 clean:
 	rm bin/*
 	rm obj/*
