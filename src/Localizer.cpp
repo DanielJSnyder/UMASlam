@@ -84,9 +84,9 @@ void Localizer::updateInternals(int64_t utime)
 void Localizer::weightParticles(const slam_pc_t & pc)
 {
 	// clear the old likelihoods and create the particles that will be weighted
-	clearLikelihoods();
 	createParticles(pc.utime);
-	
+	clearLikelihoods();
+
 	// weight the Particles based on the sensor data
 	weightParticlesWithGPS(last_coord);
 	weightParticlesWithFOG(last_theta);
@@ -324,24 +324,23 @@ void Localizer::publishParticles() const
 
 void Localizer::createPredictionParticles(int64_t curr_utime)
 {
-	//calculate prediction params
-	double dt = curr_utime - last_utime;
-	double vel_x = (last_coord.first - previous_gen_coord.first)/(dt);
-	double vel_y = (last_coord.second - previous_gen_coord.second)/dt;
-	random_device rd;
-	mt19937 gen(rd());
-
 	std::vector<Particle> temp_particles(num_predict_particles);
-	
 	//select the particles that will be predicted forward
 	//create the vector of likelihoods (assume likelihoods are bounded)
 	size_t particle_index = 0;
 	size_t num_sampled = 0;
 	double total_likelihood = particles[0].likelihood;
 
+	//get the maximum likelihood
+	double sum_of_likelihoods = 0;
+	for(Particle & p: particles)
+	{
+		sum_of_likelihoods += p.likelihood;
+	}
+
 	for(double curr_likelihood = 0.0; 
 		num_sampled < num_predict_particles && particle_index < particles.size();
-		curr_likelihood += 1.0/num_predict_particles)
+		curr_likelihood += sum_of_likelihoods/num_predict_particles)
 	{
 		while(curr_likelihood > total_likelihood && particle_index < particles.size())
 		{
@@ -355,11 +354,16 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 		}
 	}
 	
+	//calculate prediction params
+	double dx = (last_coord.first - previous_gen_coord.first);
+	double dy = (last_coord.second - previous_gen_coord.second);
+	random_device rd;
+	mt19937 gen(rd());
+
 	for(size_t i = 0; i < num_predict_particles; ++i)
 	{
-		//select particle to predict forward
-		temp_particles[i].x += vel_x * dt + x_predict_dist(gen);
-		temp_particles[i].y += vel_y * dt + y_predict_dist(gen);
+		temp_particles[i].x += dx +  x_predict_dist(gen);
+		temp_particles[i].y += dy + y_predict_dist(gen);
 		temp_particles[i].theta = last_theta + theta_fog_dist(gen);
 	}
 

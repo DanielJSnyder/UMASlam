@@ -24,15 +24,15 @@
 #define SQUARE_SIZE 0.5
 
 //localization constants
-const static int HIT_THRESHOLD = 175;
+const static int HIT_THRESHOLD = 160;
 const static int MISS_THRESHOLD = 75;
-const static int NUM_AVERAGE_PARTICLES = 7;
-const static int NUM_OUTLIERS_TO_REMOVE = 3;
+const static int NUM_AVERAGE_PARTICLES = 1;
+const static int NUM_OUTLIERS_TO_REMOVE = 0;
 const static int NUM_PARTICLES = 1000;
 
 //Lidar related localization coefficients
 const static double HIT_LIKELIHOOD_INC_VALUE = 1.0;
-const static double MISS_LIKELIHOOD_DEC_VALUE = -2.0;
+const static double MISS_LIKELIHOOD_DEC_VALUE = -5.0;
 const static int MINIMUM_LIDAR_HITS_TO_WEIGHT = 100;
 
 //GPS related localization coefficients
@@ -47,12 +47,12 @@ const static double DEFAULT_FOG_SIGMA = 0.5*M_PI/180.0;
 
 //Localization coefficients related to predicting particles forward with gps
 const static double PERCENT_PREDICTION_PARTICLES = 0.50;
-const static double X_PREDICTION_SIGMA = 0.5;
-const static double Y_PREDICTION_SIGMA = 0.5;
+const static double X_PREDICTION_SIGMA = 0.1;
+const static double Y_PREDICTION_SIGMA = 0.1;
 
 //Localization constants that relate the relative beliefs in the various sensors
 const static double LASER_LIKELIHOOD_COEFFICIENT = 1.0;
-const static double GPS_LIKELIHOOD_COEFFICIENT = 1.0;
+const static double GPS_LIKELIHOOD_COEFFICIENT = 2.5;
 const static double FOG_LIKELIHOOD_COEFFICIENT = 1.0;
 
 //mapping constants
@@ -67,7 +67,7 @@ static const double LIDAR_HEIGHT = 0.15;
 
 //fake compass stuff
 #define USE_FAKE_COMPASS 1
-#define ORIGIN_DIST_BEFORE_REINITIALIZATION 10
+#define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 
 //Drawing stuff
 #define NUM_POSES_TO_DRAW 50
