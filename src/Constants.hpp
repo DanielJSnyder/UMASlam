@@ -51,7 +51,7 @@ const static double X_PREDICTION_SIGMA = 0.1;
 const static double Y_PREDICTION_SIGMA = 0.1;
 
 //Localization constants that relate the relative beliefs in the various sensors
-const static double LASER_LIKELIHOOD_COEFFICIENT = 1.0;
+const static double LASER_LIKELIHOOD_COEFFICIENT = 0.75;
 const static double GPS_LIKELIHOOD_COEFFICIENT = 2.5;
 const static double FOG_LIKELIHOOD_COEFFICIENT = 1.0;
 
