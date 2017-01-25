@@ -6,6 +6,7 @@ all: SLAM_Report.pdf
 	pdflatex SLAM_Report.tex
 	bibtex SLAM_Report.aux
 	pdflatex SLAM_Report.tex
+	pdflatex SLAM_Report.tex
 
 clean:
 	rm *.log *.aux *.bbl *.bld *.dvi
