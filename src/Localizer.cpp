@@ -361,8 +361,6 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 	//calculate prediction params
 	double dx = (last_coord.first - previous_gen_coord.first);
 	double dy = (last_coord.second - previous_gen_coord.second);
-	random_device rd;
-	mt19937 gen(rd());
 
 	for(size_t i = 0; i < num_predict_particles; ++i)
 	{
