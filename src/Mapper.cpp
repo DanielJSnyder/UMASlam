@@ -2,6 +2,7 @@
 #include "Utilities.hpp"
 #include <iostream>
 #include <cmath>
+#include <sys/time.h>
 
 using namespace std;
 using namespace common::LCM::types;
@@ -220,6 +221,7 @@ void Mapper::updateMap()
 		uint8_t result = std::min((int64_t)255, std::max((int64_t)0, static_cast<int64_t>(value)));
 		map[u.grid_index] = result;
 	}
+  publishMap
 }
 
 void Mapper::reset()
@@ -228,8 +230,14 @@ void Mapper::reset()
 	poses.clear();
 }
 
-void publishMap(int64_t utime, string channel) {
-  map.publishMap(utime, channel);
+static int64_t Mapper::utime_now() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (int64_t) tv.tv_sec * 1000000 + tv.tv_usec;
+}
+
+void Mapper::publishMap() {
+  map.publishMap(utime_now(), SLAM_MAP_CHANNEL);
 }
 
 GridMap Mapper::getMapCopy() const
