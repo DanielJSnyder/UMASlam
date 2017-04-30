@@ -117,7 +117,7 @@ void PointCloudMaker::extractPointCloud()
 			}
 
 			point3D_t end_point = 
-				createPoint2(l.utime, range, initial_angle, l.radstep * double(i) + l.rad0);
+				createPoint(l.utime, range, initial_angle, l.radstep * double(i) + l.rad0);
 
 			curr_scan.scan_line[i] = end_point;
 			curr_scan.hit[i] = (hit)? 1 : 0;
