@@ -40,7 +40,7 @@ MapperTest: $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/MapperTeste
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/MapperTest $(SFML_FLAGS) $(LCM_FLAGS)
 
 GridTest: $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/GridTests.o
-	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/GridTest
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/GridTest $(LCM_FLAGS)
 
 PointCloudTest: $(OBJ_PATH)/PointCloud.o $(OBJ_PATH)/point_cloud_test.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/pointcloudmaker $(LCM_FLAGS)

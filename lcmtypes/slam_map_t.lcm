@@ -18,8 +18,8 @@ struct slam_map_t
   double square_size_meters;
 
   // Helpful to get horizontal size of map
-  //uint cells_per_row; 
+  int32_t cells_per_row; 
 
   // Map, represented as 2D array with dimensions of height times width
-  char map[map_size];
+  int16_t map[map_size];
 }

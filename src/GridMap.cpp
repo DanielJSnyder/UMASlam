@@ -3,7 +3,6 @@
 #include <cmath>
 
 using namespace std;
-using namespace common::LCM::types;
 using namespace SLAM::LCM;
 
 GridMap::GridMap() : 

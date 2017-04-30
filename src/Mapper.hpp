@@ -47,7 +47,7 @@ private:
 	void addAsFull(double x, double y);
 	int findUpdate(std::size_t idx);
 	void updateMap();
-  static int64_t utime_now();
+  int64_t utime_now();
   void publishMap();
 	
 	std::vector<SLAM::Pose> poses;
