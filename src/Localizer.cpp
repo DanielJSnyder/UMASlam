@@ -362,6 +362,8 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 	double dx = (last_coord.first - previous_gen_coord.first);
 	double dy = (last_coord.second - previous_gen_coord.second);
 
+  //IMU goes here, can replace dx and dy with data from the IMU
+
 	for(size_t i = 0; i < num_predict_particles; ++i)
 	{
 		temp_particles[i].x += dx +  x_predict_dist(gen);

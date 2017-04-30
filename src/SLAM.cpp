@@ -81,6 +81,9 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 			localizer.updateMap(mapper.getMap());
 		}
 	}
+  else {
+    // localizer.reinitializeFOG(Real compass north in radians goes here);
+  }
 }
 
 void Slam::handleState(const lcm::ReceiveBuffer * rbuf,
