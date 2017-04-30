@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cstdint>
-
+#include <string>
 
 //coord system
 // ^ x
@@ -92,6 +92,8 @@ public:
 	}
 
 	void resetMap();
+
+  void publishMap(int64_t utime, string channel);
 private:
 	//actual map containing the probabilities 
 	//idx 0 is bottom left (-y, -x)

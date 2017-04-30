@@ -48,3 +48,20 @@ void GridMap::resetMap()
 {
 	map.assign(map.size(), INITIAL_MAP_VALUE);
 }
+
+void publishMap(int64_t utime, string channel) {
+  // Copy map into an LCM object
+  // along with all relevant data
+	SLAM::LCM::slam_map_t publish_map;
+  publish_map.utime = utime;
+  publish_map.max_x = max_x;
+  publish_map.max_y = max_y;
+  publish_map.min_x = min_x;
+  publish_map.min_y = min_y;
+  publish_map.square_size_meters = square_size_meters;
+  publish_map.cells_per_row = cells_per_row;
+  publish_map.map = map;
+
+  lcm::LCM lcm;
+  lcm.publish(channel, &publish_map);
+}
