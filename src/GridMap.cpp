@@ -3,6 +3,8 @@
 #include <cmath>
 
 using namespace std;
+using namespace common::LCM::types;
+using namespace SLAM::LCM;
 
 GridMap::GridMap() : 
 	map(0,0),
@@ -52,7 +54,7 @@ void GridMap::resetMap()
 void GridMap::publishMap(int64_t utime, string channel) {
   // Copy map into an LCM object
   // along with all relevant data
-	SLAM::LCM::slam_map_t publish_map;
+  SLAM::LCM::slam_map_t publish_map;
   publish_map.utime = utime;
   publish_map.max_x = max_x;
   publish_map.max_y = max_y;

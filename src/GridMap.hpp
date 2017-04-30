@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdint>
 #include <string>
+#include "../lcmtypes/slam_map_t.hpp"
+#include <lcm/lcm-cpp.hpp>
 
 //coord system
 // ^ x
@@ -93,7 +95,7 @@ public:
 
 	void resetMap();
 
-  void publishMap(int64_t utime, string channel);
+  void publishMap(int64_t utime, std::string channel);
 private:
 	//actual map containing the probabilities 
 	//idx 0 is bottom left (-y, -x)

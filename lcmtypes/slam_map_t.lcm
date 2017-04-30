@@ -10,13 +10,16 @@ struct slam_map_t
   double min_x;
   double min_y;
 
+  // Size of the map vector
+  int32_t map_size;
+
   // Size of a single square in the map. 
   // Can be used with dimensions to get map size in meters
   double square_size_meters;
 
   // Helpful to get horizontal size of map
-  uint32_t cells_per_row; 
+  //uint cells_per_row; 
 
   // Map, represented as 2D array with dimensions of height times width
-  uint8_t map[(max_x - min_x) * (max_y - min_y)]
+  char map[map_size];
 }

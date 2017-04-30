@@ -61,5 +61,5 @@ report:
 	$(MAKE) -C report 
 
 clean:
-	rm bin/*
-	rm obj/*
+	- rm bin/*
+	- rm obj/*
