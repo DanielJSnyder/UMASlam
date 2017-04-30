@@ -39,26 +39,6 @@ void PointCloudMaker::handleServo(const lcm::ReceiveBuffer * rbuf,
 
 point3D_t PointCloudMaker::createPoint(int64_t utime, double range, double servo_angle, double point_angle)
 {
-	point3D_t point;
-	point.utime = utime;
-
-	double phi = point_angle;
-	double theta = servo_angle;//theta is off of z axis (more negative is more tilted forward, -pi/2 is flat?)`
-
-	double sin_ang = sin(theta);
-	double x = -range*sin_ang*cos(phi);
-	double y = range*sin_ang*sin(phi);
-	double z = range*cos(theta);
-
-	//add the point to the point_cloud
-	point.x = x;
-	point.y = y;
-	point.z = z;
-	return point;
-}
-
-point3D_t PointCloudMaker::createPoint2(int64_t utime, double range, double servo_angle, double point_angle)
-{
 	//do the transform
 	point3D_t point;
 	point.utime = utime;
@@ -136,16 +116,10 @@ void PointCloudMaker::extractPointCloud()
 				hit = false;
 			}
 
-			//point3D_t end_point = 
-			//createPoint(l.utime, range, initial_angle, l.radstep * double(i) + l.rad0);
-			point3D_t alternate_end_point = 
+			point3D_t end_point = 
 				createPoint2(l.utime, range, initial_angle, l.radstep * double(i) + l.rad0);
 
-			//cout << "theta: " << initial_angle << endl;
-			//cout << "Old point: " << end_point.x << '\t' << end_point.y << '\t' << end_point.z << endl;
-			//cout << "New point: " << alternate_end_point.x << '\t' << alternate_end_point.y << '\t' << alternate_end_point.z << endl;
-
-			curr_scan.scan_line[i] = alternate_end_point;
+			curr_scan.scan_line[i] = end_point;
 			curr_scan.hit[i] = (hit)? 1 : 0;
 		}
 
