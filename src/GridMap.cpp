@@ -49,7 +49,7 @@ void GridMap::resetMap()
 	map.assign(map.size(), INITIAL_MAP_VALUE);
 }
 
-void publishMap(int64_t utime, string channel) {
+void GridMap::publishMap(int64_t utime, string channel) {
   // Copy map into an LCM object
   // along with all relevant data
 	SLAM::LCM::slam_map_t publish_map;

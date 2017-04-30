@@ -40,6 +40,8 @@ public:
 	void addPose(const SLAM::Pose & pose);
 	void reset();
 
+  void publishMap(int64_t utime, string channel);
+
 private:
 	SLAM::Pose findAssociatedPose(int64_t time);
 	void addAsEmpty(double x, double y);

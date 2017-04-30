@@ -228,6 +228,10 @@ void Mapper::reset()
 	poses.clear();
 }
 
+void publishMap(int64_t utime, string channel) {
+  map.publishMap(utime, channel);
+}
+
 GridMap Mapper::getMapCopy() const
 {
 	return map;
