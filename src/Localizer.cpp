@@ -30,6 +30,7 @@ Localizer::Localizer(int num_particles, double predict_percent, double gps_sigma
 	last_utime(0),
 	fog_initialized(false)
 {
+  last_imu_data.utime = 0;
 }
 
 SLAM::Pose Localizer::getPose() const
@@ -73,6 +74,24 @@ void Localizer::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 								 const slam_pc_t * pc)
 {
 	weightParticles(*pc);
+}
+
+void Localizer::handleIMUData(const lcm::ReceiveBuffer * rbuf,
+							  const string & chan,
+							  const imu_t * imu_data)
+{
+  // REPLACE WITH LAST IMU DATA
+  double last_x_accel = 0;
+  double last_y_accel = 0;
+
+  // REPLACE WITH NEW IMU DATA
+  double x_accel = 0;
+  double y_accel = 0;
+
+  int64_t time_diff = imu_data->utime - last_utime;
+
+  vel.x += time_diff * ((last_x_accel + x_accel) / 2);
+  vel.y += time_diff * ((last_y_accel + y_accel) / 2);
 }
 
 void Localizer::updateInternals(int64_t utime)
@@ -358,11 +377,21 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 		}
 	}
 	
-	//calculate prediction params
-	double dx = (last_coord.first - previous_gen_coord.first);
-	double dy = (last_coord.second - previous_gen_coord.second);
 
+  double dx;
+  double dy;
   //IMU goes here, can replace dx and dy with data from the IMU
+  if(USE_IMU) 
+  {
+    dx = vel.x;  
+    dy = vel.y;
+  }
+  else
+  {
+    //calculate prediction params
+    dx = (last_coord.first - previous_gen_coord.first);
+    dy = (last_coord.second - previous_gen_coord.second);
+  }
 
 	for(size_t i = 0; i < num_predict_particles; ++i)
 	{

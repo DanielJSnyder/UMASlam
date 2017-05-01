@@ -3,6 +3,7 @@
 
 #include "../lcmtypes/gps_t.hpp"
 #include "../lcmtypes/fog_t.hpp"
+#include "../lcmtypes/imu_t.hpp"
 #include "../lcmtypes/slam_pc_t.hpp"
 #include "GridMap.hpp"
 #include "Pose.hpp"
@@ -35,6 +36,11 @@ struct ParticleComparer
 	}
 };
 
+struct Velocity {
+  double x;
+  double y;
+};
+
 class Localizer
 {
 public:
@@ -52,6 +58,10 @@ public:
 	void handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 						  const std::string & chan,
 						  const SLAM::LCM::slam_pc_t * pc);
+
+	void handleIMUData(const lcm::ReceiveBuffer * rbuf,
+					   const std::string & chan,
+					   const common::LCM::types::imu_t * imu_data);
 
 	SLAM::Pose getPose() const;
 
@@ -97,6 +107,10 @@ private:
 	size_t num_predict_particles;
 	int64_t last_utime;
 	std::pair<double, double> previous_gen_coord;
+  // Current velocity in the x and y directions
+  Velocity vel;
+  // imu readings from the last LCM message received
+  common::LCM::types::imu_t last_imu_data;
 
 	bool fog_initialized;
 };

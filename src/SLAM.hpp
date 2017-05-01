@@ -7,6 +7,7 @@
 #include "../lcmtypes/slam_pc_t.hpp"
 #include "../lcmtypes/fog_t.hpp"
 #include "../lcmtypes/gps_t.hpp"
+#include "../lcmtypes/compass_t.hpp"
 #include "../lcmtypes/state_t.hpp"
 
 #include <string>
@@ -41,6 +42,10 @@ public:
 					   const std::string & chan,
 					   const common::LCM::types::fog_t * fog_data);
 
+	void handleCompassData(const lcm::ReceiveBuffer * rbuf,
+					   const std::string & chan,
+					   const common::LCM::types::compass_t * compass_data);
+
 	const GridMap& getMap();
 
 	void run();
@@ -49,5 +54,7 @@ private:
 	bool end_flag; //used for signaling the end for profiling
 	bool reinitialized_fog;
 	FakeCompass fake_compass;
+  // Angle of north relative to current position in radians (I think radians, citation needed)
+  double compass_north;
 };
 #endif

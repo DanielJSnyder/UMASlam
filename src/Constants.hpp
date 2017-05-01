@@ -6,6 +6,8 @@
 #define GPS_CHANNEL "SENSOR_GPS"
 #define FOG_CHANNEL "SENSOR_FOG"
 #define LASER_SCAN_CHANNEL "SENSOR_LASER"
+#define COMPASS_CHANNEL "SENSOR_COMPASS"
+#define IMU_CHANNEL "imu_t"
 #define STATE_CHANNEL "STATE_CHANNEL"
 #define SERVO_CHANNEL "SENSOR_LASER_SERVO"
 #define SLAM_STATE_CHANNEL "SLAM_STATE"
@@ -69,6 +71,9 @@ static const double LIDAR_HEIGHT = 0.15;
 //fake compass stuff
 #define USE_FAKE_COMPASS 1
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
+
+//imu stuff
+#define USE_IMU 1
 
 //Drawing stuff
 #define NUM_POSES_TO_DRAW 50

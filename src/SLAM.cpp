@@ -15,6 +15,7 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
 	llcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Slam::handlePointCloud, this);
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
 	llcm.subscribe(FOG_CHANNEL, &Slam::handleFOGData, this);
+  llcm.subscribe(COMPASS_CHANNEL, &Slam::handleCompassData, this);
 }
 
 void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
@@ -62,6 +63,13 @@ void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 	}
 }
 
+void Slam::handleCompassData(const lcm::ReceiveBuffer * rbuf,
+						 const string & chan,
+						 const compass_t * compass_data)
+{
+  compass_north = compass_data->yaw;
+}
+
 void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const gps_t * gps_data)
@@ -69,21 +77,24 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 	localizer.handleGPSData(rbuf, chan, gps_data);
 
 	//reinitialization of the fog
-	if(USE_FAKE_COMPASS && !reinitialized_fog)
+	if(!reinitialized_fog)
 	{
-		fake_compass.addGPS(*gps_data);
-		if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
-		{
-			reinitialized_fog = true;
-			mapper.reset();
-			localizer.reset();
-			localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
-			localizer.updateMap(mapper.getMap());
-		}
+    if(USE_FAKE_COMPASS) 
+    {
+      fake_compass.addGPS(*gps_data);
+      if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
+      {
+        reinitialized_fog = true;
+        mapper.reset();
+        localizer.reset();
+        localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
+        localizer.updateMap(mapper.getMap());
+      }
+    }
+    else {
+      localizer.reinitializeFOG(compass_north);
+    }
 	}
-  else {
-    // localizer.reinitializeFOG(Real compass north in radians goes here);
-  }
 }
 
 void Slam::handleState(const lcm::ReceiveBuffer * rbuf,
