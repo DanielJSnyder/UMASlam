@@ -68,17 +68,21 @@ static const double LIDAR_MAP_RANGE_DEG = 60.0;
 #define DEFAULT_MISS_RANGE 15
 static const double LIDAR_HEIGHT = 0.15;
 
-//fake compass stuff
-//fake compass takes priority over IMU and regular compass
-#define USE_FAKE_COMPASS 1
+//Sets which sensor is used to find north by default
+//possible values are IMU and Compass. The other sensor
+//will be used in case of an error with the priority sensor.
+//Any other value will cause fake compass to be used instead
+#define COMPASS_PRIORITY "IMU"
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 
 //imu stuff
-#define USE_IMU 1
-//If this is enabled, heading is gotten from IMU instead of compass
-#define USE_IMU_COMPASS 1
+#define USE_IMU_PREDICTION 1
 
-//If USE_FAKE_COMPASS and USE_IMU_COMPASS are both false, actual compass is used
+//default values for the north values given from IMU and compass
+//these are intentionally out of range of the sensors so that they can
+//be used for error checking
+#define IMU_COMPASS_DEFAULT 1000
+#define COMPASS_DEFAULT 1000
 
 //Drawing stuff
 #define NUM_POSES_TO_DRAW 50

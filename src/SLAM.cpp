@@ -1,6 +1,7 @@
 #include "SLAM.hpp"
 #include "Constants.hpp"
 #include <iostream>
+#include <string>
 
 using namespace std;
 using namespace common::LCM::types;
@@ -10,7 +11,9 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
 			   localizer(NUM_PARTICLES, PERCENT_PREDICTION_PARTICLES),
 			   num_mapped_scans(0),
 			   end_flag(false),
-			   reinitialized_fog(false)
+			   reinitialized_fog(false),
+         compass_north(0),
+         imu_north(0)
 {
 	llcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Slam::handlePointCloud, this);
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
@@ -88,7 +91,30 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 	//reinitialization of the fog
 	if(!reinitialized_fog)
 	{
-    if(USE_FAKE_COMPASS) 
+    string priority = COMPASS_PRIORITY;
+    if(priority == "Compass") 
+    {
+      // Use IMU if data is bad, otherwise use compass 
+      if(compass_north != COMPASS_DEFAULT) 
+      {
+        localizer.reinitializeFOG(compass_north);
+        return;
+      }
+      localizer.reinitializeFOG(imu_north);
+
+    }
+    else if(priority == "IMU") 
+    {
+      // Use compass if data is bad, otherwise use IMU
+      if(imu_north != IMU_COMPASS_DEFAULT) 
+      {
+        localizer.reinitializeFOG(imu_north);
+        return;
+      }
+      localizer.reinitializeFOG(compass_north);
+    }
+    // Fall back to fake compass if the priority is anything other than compass or IMU
+    else  
     {
       fake_compass.addGPS(*gps_data);
       if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
@@ -99,12 +125,6 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
         localizer.updateMap(mapper.getMap());
       }
-    }
-    else if(USE_IMU_COMPASS) {
-      localizer.reinitializeFOG(imu_north);
-    }
-    else {
-      localizer.reinitializeFOG(compass_north);
     }
 	}
 }

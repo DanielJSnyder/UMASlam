@@ -382,8 +382,8 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 
   double dx;
   double dy;
-  //IMU goes here, can replace dx and dy with data from the IMU
-  if(USE_IMU) 
+
+  if(USE_IMU_PREDICTION) 
   {
     dx = vel.x;  
     dy = vel.y;
