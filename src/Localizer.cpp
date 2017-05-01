@@ -31,6 +31,8 @@ Localizer::Localizer(int num_particles, double predict_percent, double gps_sigma
 	fog_initialized(false)
 {
   last_imu_data.utime = 0;
+  last_imu_data.udot = 0;
+  last_imu_data.vdot = 0;
 }
 
 SLAM::Pose Localizer::getPose() const

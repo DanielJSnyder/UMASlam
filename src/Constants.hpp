@@ -69,6 +69,7 @@ static const double LIDAR_MAP_RANGE_DEG = 60.0;
 static const double LIDAR_HEIGHT = 0.15;
 
 //fake compass stuff
+//fake compass takes priority over IMU and regular compass
 #define USE_FAKE_COMPASS 1
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 
