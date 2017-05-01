@@ -80,16 +80,16 @@ void Localizer::handleIMUData(const lcm::ReceiveBuffer * rbuf,
 							  const string & chan,
 							  const imu_t * imu_data)
 {
-  // REPLACE WITH LAST IMU DATA
-  double last_x_accel = 0;
-  double last_y_accel = 0;
+  double last_x_accel = last_imu_data.vdot;
+  double last_y_accel = last_imu_data.udot;
 
-  // REPLACE WITH NEW IMU DATA
-  double x_accel = 0;
-  double y_accel = 0;
+  double x_accel = imu_data->vdot;
+  double y_accel = imu_data->udot;
 
+  // Width of trapezoid
   int64_t time_diff = imu_data->utime - last_utime;
 
+  // Trapezoidal Riemann sum between last two accelerations to find velocity
   vel.x += time_diff * ((last_x_accel + x_accel) / 2);
   vel.y += time_diff * ((last_y_accel + y_accel) / 2);
 }

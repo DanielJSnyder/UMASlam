@@ -7,7 +7,7 @@
 #define FOG_CHANNEL "SENSOR_FOG"
 #define LASER_SCAN_CHANNEL "SENSOR_LASER"
 #define COMPASS_CHANNEL "SENSOR_COMPASS"
-#define IMU_CHANNEL "imu_t"
+#define IMU_CHANNEL "SENSOR_IMU"
 #define STATE_CHANNEL "STATE_CHANNEL"
 #define SERVO_CHANNEL "SENSOR_LASER_SERVO"
 #define SLAM_STATE_CHANNEL "SLAM_STATE"
@@ -74,6 +74,10 @@ static const double LIDAR_HEIGHT = 0.15;
 
 //imu stuff
 #define USE_IMU 1
+//If this is enabled, heading is gotten from IMU instead of compass
+#define USE_IMU_COMPASS 1
+
+//If USE_FAKE_COMPASS and USE_IMU_COMPASS are both false, actual compass is used
 
 //Drawing stuff
 #define NUM_POSES_TO_DRAW 50

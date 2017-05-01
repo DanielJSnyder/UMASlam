@@ -34,6 +34,14 @@ class imu_t
 
         double     yaw;
 
+        double     udot;
+
+        double     vdot;
+
+        double     wdot;
+
+        double     totaccel;
+
         double     valid;
 
     public:
@@ -153,6 +161,18 @@ int imu_t::_encodeNoHash(void *buf, int offset, int maxlen) const
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->yaw, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->udot, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->vdot, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->wdot, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->totaccel, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->valid, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -184,6 +204,18 @@ int imu_t::_decodeNoHash(const void *buf, int offset, int maxlen)
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->yaw, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->udot, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->vdot, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->wdot, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->totaccel, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
+
     tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->valid, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
@@ -201,12 +233,16 @@ int imu_t::_getEncodedSizeNoHash() const
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
     enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
 int64_t imu_t::_computeHash(const __lcm_hash_ptr *)
 {
-    int64_t hash = 0x80443c39fb6f0496LL;
+    int64_t hash = 0xcdd22800de0148ebLL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

@@ -16,6 +16,7 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
 	llcm.subscribe(FOG_CHANNEL, &Slam::handleFOGData, this);
   llcm.subscribe(COMPASS_CHANNEL, &Slam::handleCompassData, this);
+  llcm.subscribe(IMU_CHANNEL, &Slam::handleIMUData, this);
 }
 
 void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
@@ -70,6 +71,14 @@ void Slam::handleCompassData(const lcm::ReceiveBuffer * rbuf,
   compass_north = compass_data->yaw;
 }
 
+void Slam::handleIMUData(const lcm::ReceiveBuffer * rbuf,
+						 const string & chan,
+						 const imu_t * imu_data)
+{
+  imu_north = imu_data->yaw;
+  localizer.handleIMUData(rbuf, chan, imu_data);
+}
+
 void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const gps_t * gps_data)
@@ -90,6 +99,9 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
         localizer.updateMap(mapper.getMap());
       }
+    }
+    else if(USE_IMU_COMPASS) {
+      localizer.reinitializeFOG(imu_north);
     }
     else {
       localizer.reinitializeFOG(compass_north);

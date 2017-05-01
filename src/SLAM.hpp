@@ -46,6 +46,10 @@ public:
 					   const std::string & chan,
 					   const common::LCM::types::compass_t * compass_data);
 
+	void handleIMUData(const lcm::ReceiveBuffer * rbuf,
+					   const std::string & chan,
+					   const common::LCM::types::imu_t * imu_data);
+
 	const GridMap& getMap();
 
 	void run();
@@ -54,7 +58,9 @@ private:
 	bool end_flag; //used for signaling the end for profiling
 	bool reinitialized_fog;
 	FakeCompass fake_compass;
-  // Angle of north relative to current position in radians (I think radians, citation needed)
+  // Angle of north relative to current position in radians
   double compass_north;
+  // Same thing as above, but from IMU
+  double imu_north;
 };
 #endif
