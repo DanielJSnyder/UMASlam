@@ -6,6 +6,7 @@
 #include "Constants.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include <string>
+#include <iostream>
 #include "../lcmtypes/laser_t.hpp"
 #include "../lcmtypes/state_t.hpp"
 #include "../lcmtypes/slam_pc_t.hpp"
@@ -40,6 +41,7 @@ public:
 	void addPose(const SLAM::Pose & pose);
 	void reset();
 
+  void printMap(std::ostream &os);
 
 private:
 	SLAM::Pose findAssociatedPose(int64_t time);

@@ -221,7 +221,7 @@ void Mapper::updateMap()
 		int16_t result = std::min((int64_t)255, std::max((int64_t)0, static_cast<int64_t>(value)));
 		map[u.grid_index] = result;
 	}
-  publishMap();
+  //publishMap();
 }
 
 void Mapper::reset()
@@ -248,4 +248,8 @@ GridMap Mapper::getMapCopy() const
 const GridMap& Mapper::getMap() const
 {
 	return map;
+}
+
+void Mapper::printMap(ostream &os) {
+  map.printMap(cout);
 }

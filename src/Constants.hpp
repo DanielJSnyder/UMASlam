@@ -72,11 +72,11 @@ static const double LIDAR_HEIGHT = 0.15;
 //possible values are IMU and Compass. The other sensor
 //will be used in case of an error with the priority sensor.
 //Any other value will cause fake compass to be used instead
-#define COMPASS_PRIORITY "IMU"
+#define COMPASS_PRIORITY "Fake"
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 
 //imu stuff
-#define USE_IMU_PREDICTION 1
+#define USE_IMU_PREDICTION 0
 
 //default values for the north values given from IMU and compass
 //these are intentionally out of range of the sensors so that they can

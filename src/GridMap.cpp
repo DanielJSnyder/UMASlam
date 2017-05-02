@@ -1,6 +1,7 @@
 #include "GridMap.hpp"
 #include "Constants.hpp"
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 using namespace SLAM::LCM;
@@ -65,4 +66,13 @@ void GridMap::publishMap(int64_t utime, string channel) {
 
   lcm::LCM lcm;
   lcm.publish(channel, &publish_map);
+}
+
+void GridMap::printMap(ostream &os) {
+  for(size_t i = 0; i < map.size(); i++) {
+    if(i % cells_per_row == 0) {
+      os << endl;
+    }
+    os << map.at(i) << " ";
+  }
 }
