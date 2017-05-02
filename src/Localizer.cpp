@@ -345,6 +345,12 @@ void Localizer::publishParticles() const
 
 void Localizer::createPredictionParticles(int64_t curr_utime)
 {
+  std::vector<Particle> temp_particles(num_predict_particles);
+  //select the particles that will be predicted forward
+  //create the vector of likelihoods (assume likelihoods are bounded)
+  size_t particle_index = 0;
+  size_t num_sampled = 0;
+  double total_likelihood = particles[0].likelihood;
 
 	//get the maximum likelihood
 	double sum_of_likelihoods = 0;
@@ -353,19 +359,9 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 		sum_of_likelihoods += p.likelihood;
 	}
 
-	uniform_real_distribution<double> initialization_distr(0, sum_of_likelihoods/num_predict_particles);
-	random_device rd;
-	mt19937 gen(rd());
-
-	//select the particles that will be predicted forward
-	size_t particle_index = 0;
-	size_t num_sampled = 0;
-	double total_likelihood = particles[0].likelihood;
-	std::vector<Particle> temp_particles(num_predict_particles);
-
-	for(double curr_likelihood = initialization_distr(gen);
-		num_sampled < num_predict_particles && particle_index < particles.size();
-		curr_likelihood += sum_of_likelihoods/num_predict_particles)
+	for(double curr_likelihood = 0;
+    num_sampled < num_predict_particles && particle_index < particles.size();
+    curr_likelihood += sum_of_likelihoods/num_predict_particles)
 	{
 		while(curr_likelihood > total_likelihood && particle_index < particles.size())
 		{
@@ -379,6 +375,8 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 		}
 	}
 	
+  random_device rd;
+  mt19937 gen(rd());
 
   double dx;
   double dy;
