@@ -22,6 +22,14 @@ void exitHandler(int s) {
 
 int main(int argc, char ** argv)
 {
+  struct sigaction sigIntHandler;
+  
+  sigIntHandler.sa_handler = exitHandler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+
+  sigaction(SIGINT, &sigIntHandler, NULL);
+
 	Slam s;
 	
 	bool drawing = (argc == 2 && string(argv[1]) == "-d");
@@ -34,7 +42,7 @@ int main(int argc, char ** argv)
 		l.subscribe(SLAM_STATE_CHANNEL, &MapDrawer::handleState, &drawer);
 		drawer.startDrawThread();
 		cout << "started draw thread" << endl;
-		while(1)
+		while(loop)
 		{
 			drawer.switchMap(s.getMap());
 			l.handle();
@@ -42,7 +50,15 @@ int main(int argc, char ** argv)
 	}
 	else
 	{
-		s.run();
+		std::thread slam_thread(&Slam::run, &s);
+    while(loop) { 
+      cout << "LOOPING SLAM TEST" << endl; 
+    }
+
+    //Continue to run slam until ctrl-c
+    cout << "HIT CTRL C" << endl;
+    s.stop();
+
 	}
 
 }

@@ -150,10 +150,26 @@ const GridMap& Slam::getMap()
 	return mapper.getMap();
 }
 
+void Slam::printMap(std::ostream &os) 
+{
+  mapper.printMap(os);
+}
+
+void Slam::stop() 
+{
+  cout << "END FLAG" << endl;
+  end_flag = true;
+  cout << "MAP PRINT" << endl;
+  printMap(cout);
+}
+
 void Slam::run()
 {
+  cout << "BEFORE SLAM LOOP" << endl;
 	while(!end_flag)
 	{
+    cout << "IN SLAM LOOP" << endl;
 		llcm.handle();
 	}
+  cout << "PAST SLAM LOOP" << endl;
 }

@@ -12,6 +12,7 @@
 
 #include <string>
 #include <mutex>
+#include <iostream>
 #include <lcm/lcm-cpp.hpp>
 
 class Slam
@@ -52,7 +53,12 @@ public:
 
 	const GridMap& getMap();
 
+  void printMap(std::ostream &os);
+
+  void stop(); 
+
 	void run();
+
 
 private:
 	bool end_flag; //used for signaling the end for profiling
