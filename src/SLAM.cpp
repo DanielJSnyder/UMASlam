@@ -60,7 +60,7 @@ void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const fog_t * fog_data)
 {
-  cout << "HANDLE FOG" << endl;
+  //cout << "HANDLE FOG" << endl;
 	localizer.handleFOGData(rbuf, chan, fog_data);
 	if(!reinitialized_fog)
 	{
@@ -72,7 +72,7 @@ void Slam::handleCompassData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const compass_t * compass_data)
 {
-  cout << "HANDLE COMPASS" << endl;
+  //cout << "HANDLE COMPASS" << endl;
   compass_north = compass_data->yaw;
 }
 
@@ -80,7 +80,7 @@ void Slam::handleIMUData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const imu_t * imu_data)
 {
-  cout << "HANDLE IMU" << endl;
+  //cout << "HANDLE IMU" << endl;
   imu_north = imu_data->yaw;
   localizer.handleIMUData(rbuf, chan, imu_data);
 }
@@ -89,7 +89,7 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const gps_t * gps_data)
 {
-  cout << "HANDLE GPS" << endl;
+  //cout << "HANDLE GPS" << endl;
 	localizer.handleGPSData(rbuf, chan, gps_data);
 
 	//reinitialization of the fog
@@ -98,7 +98,7 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
     string priority = COMPASS_PRIORITY;
     if(priority == "Compass") 
     {
-      cout << "CHOSE COMPASS" << endl;
+      //cout << "CHOSE COMPASS" << endl;
       // Use IMU if data is bad, otherwise use compass 
       if(compass_north != COMPASS_DEFAULT) 
       {
@@ -110,7 +110,7 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
     }
     else if(priority == "IMU") 
     {
-      cout << "CHOSE IMU" << endl;
+      //cout << "CHOSE IMU" << endl;
       // Use compass if data is bad, otherwise use IMU
       if(imu_north != IMU_COMPASS_DEFAULT) 
       {
@@ -125,13 +125,13 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
       fake_compass.addGPS(*gps_data);
       if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
       {
-        cout << "CHOSE FAKE COMPASS" << endl;
+        //cout << "CHOSE FAKE COMPASS" << endl;
         reinitialized_fog = true;
         mapper.reset();
         localizer.reset();
         localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
         localizer.updateMap(mapper.getMap());
-        cout << "DONE SETTING FAKE COMPASS" << endl;
+        //cout << "DONE SETTING FAKE COMPASS" << endl;
       }
     }
 	}
@@ -157,19 +157,19 @@ void Slam::printMap(std::ostream &os)
 
 void Slam::stop() 
 {
-  cout << "END FLAG" << endl;
+  //cout << "END FLAG" << endl;
   end_flag = true;
-  cout << "MAP PRINT" << endl;
+  //cout << "MAP PRINT" << endl;
   printMap(cout);
 }
 
 void Slam::run()
 {
-  cout << "BEFORE SLAM LOOP" << endl;
+  //cout << "BEFORE SLAM LOOP" << endl;
 	while(!end_flag)
 	{
-    cout << "IN SLAM LOOP" << endl;
+    //cout << "IN SLAM LOOP" << endl;
 		llcm.handle();
 	}
-  cout << "PAST SLAM LOOP" << endl;
+  //cout << "PAST SLAM LOOP" << endl;
 }

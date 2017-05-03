@@ -52,11 +52,11 @@ int main(int argc, char ** argv)
 	{
 		std::thread slam_thread(&Slam::run, &s);
     while(loop) { 
-      cout << "LOOPING SLAM TEST" << endl; 
+      cout << ""; 
     }
 
     //Continue to run slam until ctrl-c
-    cout << "HIT CTRL C" << endl;
+    //cout << "HIT CTRL C" << endl;
     s.stop();
 
 	}
