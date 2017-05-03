@@ -29,8 +29,8 @@
 //localization constants
 const static int HIT_THRESHOLD = 160;
 const static int MISS_THRESHOLD = 75;
-const static int NUM_AVERAGE_PARTICLES = 1;
-const static int NUM_OUTLIERS_TO_REMOVE = 0;
+const static int NUM_AVERAGE_PARTICLES = 5;
+const static int NUM_OUTLIERS_TO_REMOVE = 2;
 const static int NUM_PARTICLES = 1000;
 
 //Lidar related localization coefficients

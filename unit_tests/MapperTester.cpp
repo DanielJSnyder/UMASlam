@@ -38,7 +38,7 @@ int main()
 	lcm.subscribe(STATE_CHANNEL, &Mapper::handleState, &mapper);
 	
 	MapDrawer drawer;
-	//drawer.startDrawThread();
+	drawer.startDrawThread();
 
 	while(loop && 0 == lcm.handle())
 	{

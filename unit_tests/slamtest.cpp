@@ -6,7 +6,19 @@
 #include <iostream>
 #include <string>
 
+// For ctrl-c handling
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
 using namespace std;
+
+bool loop = true;
+
+void exitHandler(int s) {
+  loop = false;
+}
 
 int main(int argc, char ** argv)
 {

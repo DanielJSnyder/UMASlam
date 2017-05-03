@@ -6,6 +6,7 @@
 #include <queue>
 #include <algorithm>
 #include <utility>
+#include <iostream>
 
 using namespace std;
 using namespace common::LCM::types;
