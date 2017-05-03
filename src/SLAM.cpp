@@ -12,8 +12,8 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
 			   num_mapped_scans(0),
 			   end_flag(false),
 			   reinitialized_fog(false),
-         compass_north(0),
-         imu_north(0)
+         compass_north(COMPASS_DEFAULT),
+         imu_north(IMU_COMPASS_DEFAULT)
 {
 	llcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Slam::handlePointCloud, this);
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
@@ -81,6 +81,7 @@ void Slam::handleIMUData(const lcm::ReceiveBuffer * rbuf,
 						 const imu_t * imu_data)
 {
   //cout << "HANDLE IMU" << endl;
+  //cout << "SETTING IMU NORTH TO " << imu_data->yaw << endl;
   imu_north = imu_data->yaw;
   localizer.handleIMUData(rbuf, chan, imu_data);
 }
@@ -107,9 +108,12 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         reinitialized_fog = true;
         return;
       }
-      cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
-      localizer.reinitializeFOG(imu_north);
-      reinitialized_fog = true;
+      else if(imu_north != IMU_COMPASS_DEFAULT)
+      {
+        cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
+        localizer.reinitializeFOG(imu_north);
+        reinitialized_fog = true;
+      }
 
     }
     else if(priority == "IMU") 
@@ -123,9 +127,11 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         reinitialized_fog = true;
         return;
       }
-      cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
-      localizer.reinitializeFOG(compass_north);
-      reinitialized_fog = true;
+      else if(compass_north != COMPASS_DEFAULT) {
+        cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
+        localizer.reinitializeFOG(compass_north);
+        reinitialized_fog = true;
+      }
     }
     // Fall back to fake compass if the priority is anything other than compass or IMU
     else  
