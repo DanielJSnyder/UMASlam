@@ -95,6 +95,8 @@ void Localizer::handleIMUData(const lcm::ReceiveBuffer * rbuf,
   // Trapezoidal Riemann sum between last two accelerations to find velocity
   vel.x += time_diff * ((last_x_accel + x_accel) / 2);
   vel.y += time_diff * ((last_y_accel + y_accel) / 2);
+
+  last_imu_data = *imu_data;
 }
 
 void Localizer::updateInternals(int64_t utime)

@@ -102,10 +102,14 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
       // Use IMU if data is bad, otherwise use compass 
       if(compass_north != COMPASS_DEFAULT) 
       {
+        cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
         localizer.reinitializeFOG(compass_north);
+        reinitialized_fog = true;
         return;
       }
+      cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
       localizer.reinitializeFOG(imu_north);
+      reinitialized_fog = true;
 
     }
     else if(priority == "IMU") 
@@ -114,10 +118,14 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
       // Use compass if data is bad, otherwise use IMU
       if(imu_north != IMU_COMPASS_DEFAULT) 
       {
+        cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
         localizer.reinitializeFOG(imu_north);
+        reinitialized_fog = true;
         return;
       }
+      cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
       localizer.reinitializeFOG(compass_north);
+      reinitialized_fog = true;
     }
     // Fall back to fake compass if the priority is anything other than compass or IMU
     else  
@@ -130,6 +138,7 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         mapper.reset();
         localizer.reset();
         localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
+        cout << "SETTING HEADING TO " << fake_compass.getNorthLocation(localizer.getFogInitialization()) << " FROM FAKE COMPASS" << endl;
         localizer.updateMap(mapper.getMap());
         //cout << "DONE SETTING FAKE COMPASS" << endl;
       }

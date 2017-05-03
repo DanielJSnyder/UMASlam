@@ -19,7 +19,7 @@ void Mapper::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 							  const string & chan,
 							  const slam_pc_t * pc)
 {
-  cout << "HANDLE POINT CLOUD IN MAPPER" << endl;
+  //cout << "HANDLE POINT CLOUD IN MAPPER" << endl;
 	SLAM::logDebugMsg("adding a slam point cloud to the map", 1);
 	addToMap(*pc);
 }
@@ -28,7 +28,7 @@ void Mapper::handleState(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan, 
 						 const state_t * state)
 {
-  cout << "HANDLE STATE IN MAPPER" << endl;
+  //cout << "HANDLE STATE IN MAPPER" << endl;
 	this->addPose(SLAM::Pose(state->x, state->y, state->yaw, state->utime));
 }
 
@@ -84,7 +84,7 @@ SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 void Mapper::addToMap(const slam_pc_t & pc)
 {
 	grid_updates.clear();
-  cout << "After grid update in Mapper" << endl;
+  //cout << "After grid update in Mapper" << endl;
 	for(int scan_num = 0; scan_num < pc.num_scans; ++scan_num)
 	{
 		SLAM::Pose closest_pose = findAssociatedPose(pc.cloud[scan_num].utime);
@@ -93,9 +93,9 @@ void Mapper::addToMap(const slam_pc_t & pc)
 			addPointToMap(closest_pose, pc.cloud[scan_num].scan_line[point_num], pc.cloud[scan_num].hit[point_num]);
 		}
 	}
-  cout << "After finding associated poses in Mapper" << endl;
+  //cout << "After finding associated poses in Mapper" << endl;
 	updateMap();
-  cout << "After updating map in Mapper" << endl;
+  //cout << "After updating map in Mapper" << endl;
 }
 
 void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & local_coords_end_point, int8_t hit)
@@ -116,10 +116,10 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 	}
 
   if(x < 0) {
-    cout << "NEGATIVE X" << endl;
+    //cout << "NEGATIVE X" << endl;
   }
   else if(y < 0) {
-    cout << "NEGATIVE Y" << endl;
+    //cout << "NEGATIVE Y" << endl;
   }
   else {
     SLAM::rotateIntoGlobalCoordsInPlace(x,y,z,start_pose);
@@ -148,10 +148,10 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
         if(cell_num != end_cell)
         {
           if(curr_x < 0) {
-            cout << "NEGATIVE CURR_X" << endl;
+            //cout << "NEGATIVE CURR_X" << endl;
           }
           else if(curr_y < 0) {
-            cout << "NEGATIVE CURR_Y" << endl;
+            //cout << "NEGATIVE CURR_Y" << endl;
           }
           addAsEmpty(curr_x, curr_y);
         }
@@ -183,9 +183,9 @@ void Mapper::addAsEmpty(double x, double y)
 	{
 		GridUpdate u;
     if(grid_updates.empty()) {
-      cout << "FIRST GRID SQUARE INDEX EMPTY: " << grid_idx << endl;
-      cout << "FIRST GRID SQUARE INDEX EMPTY X: " << x << endl;
-      cout << "FIRST GRID SQUARE INDEX EMPTY Y: " << y << endl;
+      //cout << "FIRST GRID SQUARE INDEX EMPTY: " << grid_idx << endl;
+      //cout << "FIRST GRID SQUARE INDEX EMPTY X: " << x << endl;
+      //cout << "FIRST GRID SQUARE INDEX EMPTY Y: " << y << endl;
     }
 		u.grid_index = grid_idx;
 		u.value = EMPTY_INC;
@@ -209,9 +209,9 @@ void Mapper::addAsFull(double x, double y)
 	{
 		GridUpdate u;
     if(grid_updates.empty()) {
-      cout << "FIRST GRID SQUARE INDEX FULL: " << grid_idx << endl;
-      cout << "FIRST GRID SQUARE INDEX FULL X: " << x << endl;
-      cout << "FIRST GRID SQUARE INDEX FULL Y: " << y << endl;
+      //cout << "FIRST GRID SQUARE INDEX FULL: " << grid_idx << endl;
+      //cout << "FIRST GRID SQUARE INDEX FULL X: " << x << endl;
+      //cout << "FIRST GRID SQUARE INDEX FULL Y: " << y << endl;
     }
 		u.grid_index = grid_idx;
 		u.value = FULL_INC;
@@ -242,25 +242,25 @@ int Mapper::findUpdate(size_t idx)
 
 void Mapper::updateMap()
 {
-  cout << "Grid update size = " << grid_updates.size() << endl;
+  //cout << "Grid update size = " << grid_updates.size() << endl;
 	for(GridUpdate & u : grid_updates)
 	{
 		//clamp the values here
-    cout << "Start of the GridUpdate loop" << endl;
-    cout << "u.grid_index = " << u.grid_index << endl;
-    cout << "u.value = " << u.value << endl;
+    //cout << "Start of the GridUpdate loop" << endl;
+    //cout << "u.grid_index = " << u.grid_index << endl;
+    //cout << "u.value = " << u.value << endl;
 		double value = map[u.grid_index];
-    cout << "After value set: ";
-    cout << value << endl;
+    //cout << "After value set: ";
+    //cout << value << endl;
 		value += u.value;
-    cout << "After value add: ";
-    cout << u.value << endl;
+    //cout << "After value add: ";
+    //cout << u.value << endl;
 		int16_t result = std::min((int64_t)255, std::max((int64_t)0, static_cast<int64_t>(value)));
-    cout << "Result: ";
-    cout << result << endl;
+    //cout << "Result: ";
+    //cout << result << endl;
 		map[u.grid_index] = result;
-    cout << "Set map to "; 
-    cout << map[u.grid_index] << endl;
+    //cout << "Set map to "; 
+    //cout << map[u.grid_index] << endl;
 	}
   //publishMap();
 }
