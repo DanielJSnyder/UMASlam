@@ -83,7 +83,13 @@ void Slam::handleIMUData(const lcm::ReceiveBuffer * rbuf,
 {
   //cout << "HANDLE IMU" << endl;
   //cout << "SETTING IMU NORTH TO " << imu_data->yaw << endl;
-  imu_north = (2 * M_PI) - imu_data->yaw;
+  imu_north = 2 * M_PI - imu_data->yaw + M_PI / 2;
+
+  while(imu_north < 0)
+    imu_north += 2 * M_PI;
+  while(imu_north > 2 * M_PI)
+    imu_north -= 2 * M_PI;
+
   localizer.handleIMUData(rbuf, chan, imu_data);
 }
 
@@ -111,7 +117,6 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
       }
       else if(imu_north != IMU_COMPASS_DEFAULT)
       {
-        cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
         localizer.reinitializeFOG(imu_north);
         reinitialized_fog = true;
       }
@@ -119,8 +124,10 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
     }
     else if(priority == "IMU") 
     {
+      
       //cout << "CHOSE IMU" << endl;
       // Use compass if data is bad, otherwise use IMU
+      /*
       if(imu_north != IMU_COMPASS_DEFAULT) 
       {
         cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
@@ -132,6 +139,15 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
         localizer.reinitializeFOG(compass_north);
         reinitialized_fog = true;
+      }*/
+      if(imu_north != IMU_COMPASS_DEFAULT) 
+      {
+        reinitialized_fog = true;
+        mapper.reset();
+        localizer.reset();
+        localizer.reinitializeFOG(4.93584);
+        localizer.reinitializeFOG(localizer.getFogInitialization() - imu_north );
+        localizer.updateMap(mapper.getMap());
       }
     }
     // Fall back to fake compass if the priority is anything other than compass or IMU
@@ -144,8 +160,9 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
         reinitialized_fog = true;
         mapper.reset();
         localizer.reset();
-        localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
         cout << "SETTING HEADING TO " << fake_compass.getNorthLocation(localizer.getFogInitialization()) << " FROM FAKE COMPASS" << endl;
+        localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
+        
         localizer.updateMap(mapper.getMap());
         //cout << "DONE SETTING FAKE COMPASS" << endl;
       }

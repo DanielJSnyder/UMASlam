@@ -29,8 +29,8 @@
 //localization constants
 const static int HIT_THRESHOLD = 160;
 const static int MISS_THRESHOLD = 75;
-const static int NUM_AVERAGE_PARTICLES = 5;
-const static int NUM_OUTLIERS_TO_REMOVE = 2;
+const static int NUM_AVERAGE_PARTICLES = 1;
+const static int NUM_OUTLIERS_TO_REMOVE = 0;
 const static int NUM_PARTICLES = 1000;
 
 //Lidar related localization coefficients
@@ -49,7 +49,7 @@ const static double DEFAULT_GPS_SIGMA = 1.5;
 const static double DEFAULT_FOG_SIGMA = 0.5*M_PI/180.0;
 
 //Localization coefficients related to predicting particles forward with gps
-const static double PERCENT_PREDICTION_PARTICLES = 0.50;
+const static double PERCENT_PREDICTION_PARTICLES = 0;
 const static double X_PREDICTION_SIGMA = 0.1;
 const static double Y_PREDICTION_SIGMA = 0.1;
 
@@ -72,7 +72,7 @@ static const double LIDAR_HEIGHT = 0.15;
 //possible values are IMU and Compass. The other sensor
 //will be used in case of an error with the priority sensor.
 //Any other value will cause fake compass to be used instead
-#define COMPASS_PRIORITY "IMU"
+#define COMPASS_PRIORITY "FAKE"
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 
 //imu stuff
