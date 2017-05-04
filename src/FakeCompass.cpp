@@ -19,6 +19,7 @@ double FakeCompass::getNorthLocation()
 double FakeCompass::getNorthLocation(double initial_theta)
 {
 	double end_angle = atan2(xy_coords.back().second, xy_coords.back().first);
+	//cout << "fake compass north value: " << end_angle << endl;
 	return (initial_theta - end_angle);
 }
 

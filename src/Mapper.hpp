@@ -41,7 +41,9 @@ public:
 	void addPose(const SLAM::Pose & pose);
 	void reset();
 
-  void printMap(std::ostream &os);
+	void publishMap();
+
+	void printMap(std::ostream &os);
 
 private:
 	SLAM::Pose findAssociatedPose(int64_t time);
@@ -49,8 +51,8 @@ private:
 	void addAsFull(double x, double y);
 	int findUpdate(std::size_t idx);
 	void updateMap();
-  int64_t utime_now();
-  void publishMap();
+	int64_t utime_now();
+  
 	
 	std::vector<SLAM::Pose> poses;
 	std::vector<GridUpdate> grid_updates;

@@ -169,6 +169,12 @@ void Slam::run()
 	{
     //cout << "IN SLAM LOOP" << endl;
 		llcm.handle();
+
+    {
+      std::lock_guard<std::mutex> map_lock(map_mut);
+      mapper.publishMap();
+    }
+
 	}
   //cout << "PAST SLAM LOOP" << endl;
 }

@@ -89,8 +89,11 @@ void Localizer::handleIMUData(const lcm::ReceiveBuffer * rbuf,
   double x_accel = imu_data->vdot;
   double y_accel = imu_data->udot;
 
-  // Width of trapezoid
-  int64_t time_diff = imu_data->utime - last_utime;
+  if(last_utime == 0)
+  	return;
+
+  // Width of trapezoid in seconds, utime is in microseconds
+  double time_diff = (imu_data->utime - last_utime) / 1000000.0;
 
   // Trapezoidal Riemann sum between last two accelerations to find velocity
   vel.x += time_diff * ((last_x_accel + x_accel) / 2);
@@ -441,6 +444,12 @@ void Localizer::reset()
 void Localizer::reinitializeFOG(double new_initial_fog)
 {
 	initial_theta = new_initial_fog;
+
+	while(initial_theta < 0)
+		initial_theta += 2 * M_PI;
+	while(initial_theta > 2 * M_PI)
+		initial_theta -= 2 * M_PI;
+
 	fog_initialized = true;
 }
 

@@ -68,5 +68,6 @@ private:
   double compass_north;
   // Same thing as above, but from IMU
   double imu_north;
+
 };
 #endif
