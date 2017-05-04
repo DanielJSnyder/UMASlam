@@ -61,7 +61,7 @@ const static double FOG_LIKELIHOOD_COEFFICIENT = 1.0;
 #define INITIAL_MAP_VALUE 128
 #define FULL_SQUARE_INC 5.0
 static const double EMPTY_SQUARE_INC = -0.025;
-static const double LIDAR_MAP_RANGE_DEG = 60.0;
+static const double LIDAR_MAP_RANGE_DEG = 90.0;
 
 //point cloud constants
 #define DEFAULT_MISS_RANGE 9
