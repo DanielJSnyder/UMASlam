@@ -100,60 +100,26 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
   //cout << "HANDLE GPS" << endl;
 	localizer.handleGPSData(rbuf, chan, gps_data);
 
+
 	//reinitialization of the fog
 	if(!reinitialized_fog)
 	{
-    string priority = COMPASS_PRIORITY;
-    if(priority == "Compass") 
+    fake_compass.addGPS(*gps_data);
+    if(!USE_FAKE_COMPASS || compass_north != COMPASS_DEFAULT) 
     {
-      //cout << "CHOSE COMPASS" << endl;
-      // Use IMU if data is bad, otherwise use compass 
-      if(compass_north != COMPASS_DEFAULT) 
-      {
-        cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
-        localizer.reinitializeFOG(compass_north);
-        reinitialized_fog = true;
-        return;
-      }
-      else if(imu_north != IMU_COMPASS_DEFAULT)
-      {
-        localizer.reinitializeFOG(imu_north);
-        reinitialized_fog = true;
-      }
-
-    }
-    else if(priority == "IMU") 
-    {
+      // Use compass to initialize north
+      reinitialized_fog = true;
+      mapper.reset();
+      localizer.reset();
+      localizer.reinitializeFOG(compass_north);
+      cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
+      localizer.updateMap(mapper.getMap());
       
-      //cout << "CHOSE IMU" << endl;
-      // Use compass if data is bad, otherwise use IMU
-      /*
-      if(imu_north != IMU_COMPASS_DEFAULT) 
-      {
-        cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
-        localizer.reinitializeFOG(imu_north);
-        reinitialized_fog = true;
-        return;
-      }
-      else if(compass_north != COMPASS_DEFAULT) {
-        cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
-        localizer.reinitializeFOG(compass_north);
-        reinitialized_fog = true;
-      }*/
-      if(imu_north != IMU_COMPASS_DEFAULT) 
-      {
-        reinitialized_fog = true;
-        mapper.reset();
-        localizer.reset();
-        localizer.reinitializeFOG(4.93584);
-        localizer.reinitializeFOG(localizer.getFogInitialization() - imu_north );
-        localizer.updateMap(mapper.getMap());
-      }
     }
-    // Fall back to fake compass if the priority is anything other than compass or IMU
+    // Fall back to fake compass if compass is unavailable or priority is set to
+    // fake compass
     else  
     {
-      fake_compass.addGPS(*gps_data);
       if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
       {
         //cout << "CHOSE FAKE COMPASS" << endl;
