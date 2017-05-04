@@ -94,9 +94,11 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
   //cout << "HANDLE GPS" << endl;
 	localizer.handleGPSData(rbuf, chan, gps_data);
 
+
 	//reinitialization of the fog
 	if(!reinitialized_fog)
 	{
+    fake_compass.addGPS(*gps_data);
     string priority = COMPASS_PRIORITY;
     if(priority == "Compass") 
     {
@@ -126,28 +128,32 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
     {
       //cout << "CHOSE IMU" << endl;
       // Use compass if data is bad, otherwise use IMU
-      if(imu_north != IMU_COMPASS_DEFAULT) 
+      if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION) 
       {
-        reinitialized_fog = true;
-        mapper.reset();
-        localizer.reset();
-        localizer.reinitializeFOG(imu_north);
-        cout << "SETTING HEADING TO " << imu_north << " FROM IMU" << endl;
-        localizer.updateMap(mapper.getMap());
-      }
-      else if(compass_north != COMPASS_DEFAULT) {
-        reinitialized_fog = true;
-        mapper.reset();
-        localizer.reset();
-        localizer.reinitializeFOG(compass_north);
-        cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
-        localizer.updateMap(mapper.getMap());
+        if(imu_north != IMU_COMPASS_DEFAULT) 
+        {
+          reinitialized_fog = true;
+          mapper.reset();
+          localizer.reset();
+          double init_north = 3.7912;
+          localizer.reinitializeFOG(init_north);
+          cout << "SETTING HEADING TO " << init_north << " FROM IMU" << endl;
+          localizer.updateMap(mapper.getMap());
+        }
+        else if(compass_north != COMPASS_DEFAULT) 
+        {
+          reinitialized_fog = true;
+          mapper.reset();
+          localizer.reset();
+          localizer.reinitializeFOG(compass_north);
+          cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
+          localizer.updateMap(mapper.getMap());
+        }
       }
     }
     // Fall back to fake compass if the priority is anything other than compass or IMU
     else  
     {
-      fake_compass.addGPS(*gps_data);
       if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
       {
         //cout << "CHOSE FAKE COMPASS" << endl;
