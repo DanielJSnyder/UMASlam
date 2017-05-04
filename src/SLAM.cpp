@@ -2,6 +2,7 @@
 #include "Constants.hpp"
 #include <iostream>
 #include <string>
+#include <cmath>
 
 using namespace std;
 using namespace common::LCM::types;
@@ -82,7 +83,7 @@ void Slam::handleIMUData(const lcm::ReceiveBuffer * rbuf,
 {
   //cout << "HANDLE IMU" << endl;
   //cout << "SETTING IMU NORTH TO " << imu_data->yaw << endl;
-  imu_north = imu_data->yaw;
+  imu_north = (2 * M_PI) - imu_data->yaw;
   localizer.handleIMUData(rbuf, chan, imu_data);
 }
 
