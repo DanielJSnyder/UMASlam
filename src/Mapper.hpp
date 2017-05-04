@@ -43,8 +43,6 @@ public:
 
 	void publishMap();
 
-	void printMap(std::ostream &os);
-
 private:
 	SLAM::Pose findAssociatedPose(int64_t time);
 	void addAsEmpty(double x, double y);

@@ -16,10 +16,11 @@ double FakeCompass::getNorthLocation()
 	return (average_fog - end_angle);
 }
 
+// Returns the difference between the initial angle and the angle of the current position from
+// the GPS' north axis. Used to initialize FOG's initial angle
 double FakeCompass::getNorthLocation(double initial_theta)
 {
 	double end_angle = atan2(xy_coords.back().second, xy_coords.back().first);
-	//cout << "fake compass north value: " << end_angle << endl;
 	return (initial_theta - end_angle);
 }
 
@@ -41,5 +42,8 @@ double FakeCompass::getDistFromOrigin() const
 {
 	double x = xy_coords.back().first;
 	double y = xy_coords.back().second;
+  // Dan didn't take the square root here for some reason, presumably an
+  // optimization since it doesn't really matter as long as
+  // ORIGIN_DIST_BEFORE_REINITIALIZATION is adjusted accordingly
 	return (x*x + y*y);
 }

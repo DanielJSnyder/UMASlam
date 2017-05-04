@@ -67,10 +67,10 @@ static const double LIDAR_MAP_RANGE_DEG = 60.0;
 #define DEFAULT_MISS_RANGE 9
 static const double LIDAR_HEIGHT = 0.15;
 
-//Sets which sensor is used to find north by default
-//possible values are IMU and Compass. The other sensor
-//will be used in case of an error with the priority sensor.
-//Any other value will cause fake compass to be used instead
+//compass constants, ORIGIN_DIST_BEFORE_REINITIALIZATION is
+//meant to be the distance travelled before fake compass resets the origin,
+//but this is not actually true since the math is incorrect in
+//FakeCompass' distance function
 #define USE_FAKE_COMPASS true
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 

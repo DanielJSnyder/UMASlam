@@ -55,11 +55,8 @@ void GridMap::publishMap(int64_t utime, string channel) {
   // Copy map into an LCM object
   // along with all relevant data
 	SLAM::LCM::slam_map_t publish_map;
-//	common::LCM::types::point_cloud_t publish_map;
   publish_map.utime = utime;
   publish_map.map_size = map.size();
-  //vector<int16_t> tempMap = vector<int16_t>(map.size(), 0);
-  //publish_map.map = tempMap;
   cout << utime << endl;
   publish_map.max_x = max_x;
   publish_map.max_y = max_y;
@@ -69,18 +66,7 @@ void GridMap::publishMap(int64_t utime, string channel) {
   publish_map.square_size_meters = square_size_meters;
   publish_map.cells_per_row = cells_per_row;
   publish_map.map = map;
-  cout << "Finished copying meta data" << endl;
 
   lcm::LCM lcm;
   lcm.publish(channel, &publish_map);
-  cout << "Finished publishing" << endl;
-}
-
-void GridMap::printMap(ostream &os) {
-  for(size_t i = 0; i < map.size(); i++) {
-    if(i % cells_per_row == 0) {
-      os << endl;
-    }
-    os << map.at(i) << " ";
-  }
 }

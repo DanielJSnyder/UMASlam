@@ -59,7 +59,6 @@ void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const fog_t * fog_data)
 {
-  //cout << "HANDLE FOG" << endl;
 	localizer.handleFOGData(rbuf, chan, fog_data);
 	if(!reinitialized_fog)
 	{
@@ -71,7 +70,6 @@ void Slam::handleCompassData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const compass_t * compass_data)
 {
-  //cout << "HANDLE COMPASS" << endl;
   compass_north = compass_data->yaw;
 }
 
@@ -79,9 +77,7 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
 						 const string & chan,
 						 const gps_t * gps_data)
 {
-  //cout << "HANDLE GPS" << endl;
 	localizer.handleGPSData(rbuf, chan, gps_data);
-
 
 	//reinitialization of the fog
 	if(!reinitialized_fog)
@@ -94,25 +90,20 @@ void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,
       mapper.reset();
       localizer.reset();
       localizer.reinitializeFOG(compass_north);
-      cout << "SETTING HEADING TO " << compass_north << " FROM COMPASS" << endl;
       localizer.updateMap(mapper.getMap());
       
     }
-    // Fall back to fake compass if compass is unavailable or priority is set to
-    // fake compass
+    // Fall back to fake compass if compass is unavailable or 
+    // priority is set to fake compass
     else  
     {
       if(fake_compass.getDistFromOrigin() > ORIGIN_DIST_BEFORE_REINITIALIZATION)
       {
-        //cout << "CHOSE FAKE COMPASS" << endl;
         reinitialized_fog = true;
         mapper.reset();
         localizer.reset();
-        cout << "SETTING HEADING TO " << fake_compass.getNorthLocation(localizer.getFogInitialization()) << " FROM FAKE COMPASS" << endl;
         localizer.reinitializeFOG(fake_compass.getNorthLocation(localizer.getFogInitialization()));
-        
         localizer.updateMap(mapper.getMap());
-        //cout << "DONE SETTING FAKE COMPASS" << endl;
       }
     }
 	}
@@ -131,32 +122,17 @@ const GridMap& Slam::getMap()
 	return mapper.getMap();
 }
 
-void Slam::printMap(std::ostream &os) 
-{
-  mapper.printMap(os);
-}
-
-void Slam::stop() 
-{
-  //cout << "END FLAG" << endl;
-  end_flag = true;
-  //cout << "MAP PRINT" << endl;
-  printMap(cout);
-}
-
 void Slam::run()
 {
-  //cout << "BEFORE SLAM LOOP" << endl;
 	while(!end_flag)
 	{
-    //cout << "IN SLAM LOOP" << endl;
 		llcm.handle();
-
+    //lock the map to avoid rewriting of the map while it's publishing
     {
       std::lock_guard<std::mutex> map_lock(map_mut);
       mapper.publishMap();
     }
+    //map_lock releases after the publish
 
 	}
-  //cout << "PAST SLAM LOOP" << endl;
 }

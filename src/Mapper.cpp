@@ -281,7 +281,3 @@ const GridMap& Mapper::getMap() const
 {
 	return map;
 }
-
-void Mapper::printMap(ostream &os) {
-  map.printMap(cout);
-}

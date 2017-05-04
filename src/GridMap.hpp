@@ -98,8 +98,6 @@ public:
 	void resetMap();
 
   void publishMap(int64_t utime, std::string channel);
-
-  void printMap(std::ostream &os);
 private:
 	//actual map containing the probabilities 
 	//idx 0 is bottom left (-y, -x)
