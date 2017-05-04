@@ -20,10 +20,10 @@
 
 //general constants (FULL SLAM)
 #define NUM_ONLY_MAP_SCANS 1
-#define MAX_X 75
-#define MIN_X -75
-#define MAX_Y 75
-#define MIN_Y -75
+#define MAX_X 20
+#define MIN_X -20
+#define MAX_Y 20
+#define MIN_Y -20
 #define SQUARE_SIZE 0.5
 
 //localization constants
@@ -65,7 +65,7 @@ static const double EMPTY_SQUARE_INC = -0.025;
 static const double LIDAR_MAP_RANGE_DEG = 60.0;
 
 //point cloud constants
-#define DEFAULT_MISS_RANGE 15
+#define DEFAULT_MISS_RANGE 9
 static const double LIDAR_HEIGHT = 0.15;
 
 //Sets which sensor is used to find north by default

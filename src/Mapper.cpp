@@ -269,9 +269,9 @@ int64_t Mapper::utime_now() {
     return (int64_t) tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-/*void Mapper::publishMap() {
+void Mapper::publishMap() {
   map.publishMap(utime_now(), SLAM_MAP_CHANNEL);
-}*/
+}
 
 GridMap Mapper::getMapCopy() const
 {
