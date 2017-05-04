@@ -115,58 +115,50 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 		return;
 	}
 
-  if(x < 0) {
-    //cout << "NEGATIVE X" << endl;
-  }
-  else if(y < 0) {
-    //cout << "NEGATIVE Y" << endl;
-  }
-  else {
-    SLAM::rotateIntoGlobalCoordsInPlace(x,y,z,start_pose);
+  SLAM::rotateIntoGlobalCoordsInPlace(x,y,z,start_pose);
 
-    //only handling 2d case
-    double dx = x - start_pose.x;
-    double dy = y - start_pose.y;
-    double total_dist = std::sqrt(dx * dx + dy * dy);
+  //only handling 2d case
+  double dx = x - start_pose.x;
+  double dy = y - start_pose.y;
+  double total_dist = std::sqrt(dx * dx + dy * dy);
 
-    int max_num_steps = std::ceil(total_dist/laser_step_size);
-    
-    size_t end_cell = map.convertToGridCoords(x, y);
+  int max_num_steps = std::ceil(total_dist/laser_step_size);
+  
+  size_t end_cell = map.convertToGridCoords(x, y);
 
-    size_t prev_cell = map.convertToGridCoords(start_pose.x, start_pose.y);
+  size_t prev_cell = map.convertToGridCoords(start_pose.x, start_pose.y);
 
-    for(int i = 0; i < max_num_steps && prev_cell != end_cell; ++i)
+  for(int i = 0; i < max_num_steps && prev_cell != end_cell; ++i)
+  {
+    //calculate coords based on similar triangles
+    double dist_ratio = i * laser_step_size/total_dist;
+    double curr_x = start_pose.x + (dx * dist_ratio);
+    double curr_y = start_pose.y + (dy * dist_ratio);
+
+    size_t cell_num = map.convertToGridCoords(curr_x, curr_y);
+    if(cell_num != prev_cell)
     {
-      //calculate coords based on similar triangles
-      double dist_ratio = i * laser_step_size/total_dist;
-      double curr_x = start_pose.x + (dx * dist_ratio);
-      double curr_y = start_pose.y + (dy * dist_ratio);
-
-      size_t cell_num = map.convertToGridCoords(curr_x, curr_y);
-      if(cell_num != prev_cell)
+      if(cell_num != end_cell)
       {
-        if(cell_num != end_cell)
-        {
-          if(curr_x < 0) {
-            //cout << "NEGATIVE CURR_X" << endl;
-          }
-          else if(curr_y < 0) {
-            //cout << "NEGATIVE CURR_Y" << endl;
-          }
-          addAsEmpty(curr_x, curr_y);
+        if(curr_x < 0) {
+          //cout << "NEGATIVE CURR_X" << endl;
         }
-
-        prev_cell = cell_num;
+        else if(curr_y < 0) {
+          //cout << "NEGATIVE CURR_Y" << endl;
+        }
+        addAsEmpty(curr_x, curr_y);
       }
+
+      prev_cell = cell_num;
     }
-    if(hit == 1)
-    {
-      addAsFull(x, y);
-    }
-    else
-    {
-      addAsEmpty(x,y);
-    }
+  }
+  if(hit == 1)
+  {
+    addAsFull(x, y);
+  }
+  else
+  {
+    addAsEmpty(x,y);
   }
 }
 
