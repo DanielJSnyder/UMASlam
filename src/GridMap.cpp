@@ -57,7 +57,6 @@ void GridMap::publishMap(int64_t utime, string channel) {
 	SLAM::LCM::slam_map_t publish_map;
   publish_map.utime = utime;
   publish_map.map_size = map.size();
-  cout << utime << endl;
   publish_map.max_x = max_x;
   publish_map.max_y = max_y;
   publish_map.min_x = min_x;
