@@ -254,7 +254,6 @@ void Mapper::updateMap()
     //cout << "Set map to "; 
     //cout << map[u.grid_index] << endl;
 	}
-  //publishMap();
 }
 
 void Mapper::reset()

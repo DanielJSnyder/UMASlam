@@ -13,14 +13,12 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
 			   num_mapped_scans(0),
 			   end_flag(false),
 			   reinitialized_fog(false),
-         compass_north(COMPASS_DEFAULT),
-         imu_north(IMU_COMPASS_DEFAULT)
+         compass_north(COMPASS_DEFAULT)
 {
 	llcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Slam::handlePointCloud, this);
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
 	llcm.subscribe(FOG_CHANNEL, &Slam::handleFOGData, this);
   llcm.subscribe(COMPASS_CHANNEL, &Slam::handleCompassData, this);
-  llcm.subscribe(IMU_CHANNEL, &Slam::handleIMUData, this);
 }
 
 void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
@@ -75,22 +73,6 @@ void Slam::handleCompassData(const lcm::ReceiveBuffer * rbuf,
 {
   //cout << "HANDLE COMPASS" << endl;
   compass_north = compass_data->yaw;
-}
-
-void Slam::handleIMUData(const lcm::ReceiveBuffer * rbuf,
-						 const string & chan,
-						 const imu_t * imu_data)
-{
-  //cout << "HANDLE IMU" << endl;
-  //cout << "SETTING IMU NORTH TO " << imu_data->yaw << endl;
-  imu_north = 2 * M_PI - imu_data->yaw + M_PI / 2;
-
-  while(imu_north < 0)
-    imu_north += 2 * M_PI;
-  while(imu_north > 2 * M_PI)
-    imu_north -= 2 * M_PI;
-
-  localizer.handleIMUData(rbuf, chan, imu_data);
 }
 
 void Slam::handleGPSData(const lcm::ReceiveBuffer * rbuf,

@@ -7,7 +7,6 @@
 #define FOG_CHANNEL "SENSOR_FOG"
 #define LASER_SCAN_CHANNEL "SENSOR_LASER"
 #define COMPASS_CHANNEL "SENSOR_COMPASS"
-#define IMU_CHANNEL "imu_t"
 #define STATE_CHANNEL "STATE_CHANNEL"
 #define SERVO_CHANNEL "SENSOR_LASER_SERVO"
 #define SLAM_STATE_CHANNEL "SLAM_STATE"
@@ -75,13 +74,9 @@ static const double LIDAR_HEIGHT = 0.15;
 #define USE_FAKE_COMPASS true
 #define ORIGIN_DIST_BEFORE_REINITIALIZATION 5
 
-//imu stuff
-#define USE_IMU_PREDICTION 0
-
-//default values for the north values given from IMU and compass
-//these are intentionally out of range of the sensors so that they can
+//default value for the north value given from compass
+//this is intentionally out of range of the sensor so it can
 //be used for error checking
-#define IMU_COMPASS_DEFAULT 1000
 #define COMPASS_DEFAULT 1000
 
 //Drawing stuff
