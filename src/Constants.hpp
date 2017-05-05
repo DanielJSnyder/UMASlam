@@ -64,7 +64,7 @@ static const double EMPTY_SQUARE_INC = -0.025;
 static const double LIDAR_MAP_RANGE_DEG = 90.0;
 
 //point cloud constants
-#define DEFAULT_MISS_RANGE 9
+#define DEFAULT_MISS_RANGE 15
 static const double LIDAR_HEIGHT = 0.15;
 
 //compass constants, ORIGIN_DIST_BEFORE_REINITIALIZATION is

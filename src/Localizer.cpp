@@ -172,6 +172,7 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
 				double z = pc.cloud[i].scan_line[j].z;
+				//double angle = SLAM::quadrantCorrectedAtan(y,x);
 				double angle = atan2(y,x);
 
 				if(abs(angle * 180.0/M_PI ) > LIDAR_MAP_RANGE_DEG)

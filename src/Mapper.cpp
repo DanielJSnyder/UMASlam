@@ -99,6 +99,7 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 	double x = local_coords_end_point.x;
 	double y = local_coords_end_point.y;
 	double z = local_coords_end_point.z;
+	//double angle = SLAM::quadrantCorrectedAtan(y,x);
 	double angle = atan2(y,x);
 	if(abs(angle * 180.0/M_PI ) > LIDAR_MAP_RANGE_DEG)
 	{
