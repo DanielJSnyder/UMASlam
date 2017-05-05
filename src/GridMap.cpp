@@ -28,6 +28,27 @@ GridMap::GridMap(double mnx, double mxx, double mny, double mxy, double ss):
 	cells_per_row = (abs(mnx) + abs(mxx))/square_size_meters;
 }
 
+GridMap::GridMap(double mnx, double mxx, double mny, double mxy, double ss, std::vector<int16_t> map_in):
+	map((abs(mnx)+ abs(mxx))/ss * (abs(mny) + abs(mxy))/ss, INITIAL_MAP_VALUE),//intialize the map to be all grey
+	max_x(mxx),
+	max_y(mxy),
+	min_x(mnx),
+	min_y(mny),
+	square_size_meters(ss)
+{
+	cells_per_row = (abs(mnx) + abs(mxx))/square_size_meters;
+  map = map_in;
+  cout << "max_x: " << max_x << endl;
+  cout << "max_y: " << max_y << endl;
+  cout << "min_x: " << min_x << endl;
+  cout << "min_y: " << min_y << endl;
+
+  cout << "square_size_meters: " << square_size_meters << endl;
+  cout << "cells_per_row: " << cells_per_row << endl;
+
+  cout << "MAP SIZE: " << map.size() << endl;
+}
+
 GridMap::GridMap(const GridMap & gm)
 {
 	*this=gm;

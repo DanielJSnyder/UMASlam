@@ -20,6 +20,7 @@ public:
 	GridMap();
 
 	GridMap(double mnx, double mxx, double mny, double mxy, double ss);
+  GridMap(double mnx, double mxx, double mny, double mxy, double ss, std::vector<int16_t> map_in);
 
 	GridMap(const GridMap& gm);
 	const GridMap & operator=(const GridMap & gm);

@@ -153,6 +153,11 @@ void MapDrawer::handleState(const lcm::ReceiveBuffer * rbuf, const string & chan
 	addPose(p);
 }
 
+void MapDrawer::handleMap(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const SLAM::LCM::slam_map_t * slam_map) {
+  GridMap gridmap(slam_map->min_x, slam_map->max_x, slam_map->min_y, slam_map->max_y, slam_map->square_size_meters, slam_map->map);
+  map = gridmap; 
+}
+
 void MapDrawer::drawBoat(sf::RenderWindow & win)
 {
 	if(poses.size() == 0)
