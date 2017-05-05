@@ -10,11 +10,10 @@ using namespace std;
 
 int main(int argc, char ** argv)
 {
-	Slam s;
-	
 	bool drawing = (argc == 2 && string(argv[1]) == "-d");
 	if(drawing)
 	{
+	  Slam s;
 		std::thread slam_thread(&Slam::run, &s);
 		cout << "started slam thread" << endl;
 		MapDrawer drawer;
@@ -30,7 +29,15 @@ int main(int argc, char ** argv)
 	}
 	else
 	{
-    s.run();
+    // s.run() has its own loop, so this will just create and 
+    // start SLAM again whenever SLAM gets killed. At the time of
+    // this comment, SLAM should only get stopped by an LCM message
+    // in SLAM_RESET_CHANNEL
+    while(1)
+    {
+	    Slam s;
+      s.run();
+    }
 	}
 
 }

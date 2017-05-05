@@ -2,6 +2,7 @@
 #include "../src/Constants.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include <iostream>
+#include <sys/time.h>
 
 using namespace std;
 using namespace SLAM::LCM;
@@ -29,7 +30,7 @@ int main()
 	Printer p;
 	lcm::LCM lcm;
 	lcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Printer::handlePC, &p);
-
+  
 	while(1)
 	{
 		lcm.handle();
