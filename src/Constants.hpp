@@ -25,7 +25,7 @@
 #define MIN_X -70
 #define MAX_Y 70
 #define MIN_Y -70
-#define SQUARE_SIZE 0.25
+#define SQUARE_SIZE 0.5
 
 //localization constants
 const static int HIT_THRESHOLD = 160;

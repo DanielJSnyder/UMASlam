@@ -38,6 +38,7 @@ GridMap::GridMap(double mnx, double mxx, double mny, double mxy, double ss, std:
 {
 	cells_per_row = (abs(mnx) + abs(mxx))/square_size_meters;
   map = map_in;
+  /*
   cout << "max_x: " << max_x << endl;
   cout << "max_y: " << max_y << endl;
   cout << "min_x: " << min_x << endl;
@@ -47,6 +48,7 @@ GridMap::GridMap(double mnx, double mxx, double mny, double mxy, double ss, std:
   cout << "cells_per_row: " << cells_per_row << endl;
 
   cout << "MAP SIZE: " << map.size() << endl;
+  */
 }
 
 GridMap::GridMap(const GridMap & gm)
