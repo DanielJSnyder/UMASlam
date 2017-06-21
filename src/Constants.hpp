@@ -21,11 +21,11 @@
 
 //general constants (FULL SLAM)
 #define NUM_ONLY_MAP_SCANS 1
-#define MAX_X 50
-#define MIN_X -50
-#define MAX_Y 50
-#define MIN_Y -50
-#define SQUARE_SIZE 0.5
+#define MAX_X 70
+#define MIN_X -70
+#define MAX_Y 70
+#define MIN_Y -70
+#define SQUARE_SIZE 0.25
 
 //localization constants
 const static int HIT_THRESHOLD = 160;
