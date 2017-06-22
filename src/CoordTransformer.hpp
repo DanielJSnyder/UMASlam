@@ -30,6 +30,10 @@ public:
 		This also assumes you are at sealevel;
 	*/
 	XYCoord transform(double lat, double lon);
+
+  double getOriginLat() const { return origin_lat; }
+  double getOriginLon() const { return origin_lon; }
+
 private:
 	bool initialized;
 

@@ -85,7 +85,7 @@ void PointCloudVisualizer::drawCloud(sf::RenderWindow & win)
 			}
 			if(scan_line.hit[i] == 0)
 			{
-				p.setFillColor(sf::Color::Magenta);
+				//p.setFillColor(sf::Color::Magenta);
 			}
 			p.setRadius(3);
 

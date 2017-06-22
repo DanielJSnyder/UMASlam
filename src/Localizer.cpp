@@ -303,6 +303,8 @@ void Localizer::publishPose() const
 	pub_state.x = last_pose.x;
 	pub_state.y = last_pose.y;
 	pub_state.yaw = last_pose.theta;
+  pub_state.origLat = coord_transformer.getOriginLat();
+  pub_state.origLon = coord_transformer.getOriginLon();
 	lcm::LCM l;
 	l.publish(SLAM_STATE_CHANNEL, &pub_state);
 }
