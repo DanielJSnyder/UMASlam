@@ -274,11 +274,6 @@ void Localizer::setPose(int64_t utime)
 	
 	sort(averaging_particles.begin(), averaging_particles.end(), [](const pair<Particle,double> &  a, const pair<Particle,double> &  b) { return a.second < b.second;});
 
-	for(size_t i = 0; i < NUM_OUTLIERS_TO_REMOVE; ++i)
-	{
-		averaging_particles.pop_back();
-	}
-
 	double total_x = 0; 
 	double total_y = 0;
 	double total_theta = 0;

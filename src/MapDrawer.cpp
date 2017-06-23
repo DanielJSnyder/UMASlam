@@ -192,8 +192,7 @@ void MapDrawer::drawPoses(sf::RenderWindow & win)
 	sf::VertexArray pose_line;
 	pose_line.setPrimitiveType(sf::LinesStrip);
 	pose_line.resize(poses.size());
-	for(size_t i = 0/*std::max(0, (int)(poses.size()) - NUM_POSES_TO_DRAW)*/;
-		i < poses.size(); ++i)
+	for(size_t i = 0; i < poses.size(); ++i)
 	{
 		SLAM::Pose p = poses[i];
 		pair<double, double> coords = convertToPixelCoords(p.x, p.y);
