@@ -8,14 +8,13 @@ BIN_PATH = ./bin
 OBJ_PATH = ./obj
 SRC_PATH = ./src
 TEST_PATH = ./unit_tests
-LEVEL=1
 
 all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter ParticlePrinter PointCloudVis
 
 optimized: FLAGS += $(OPTIMIZATION_FLAGS)
 optimized: all
 
-debug: FLAGS += -DSLAM_DEBUG_LEVEL=$(LEVEL) -O3
+debug: FLAGS += -O3
 debug: all
 
 profile: FLAGS += $(PFLAGS)

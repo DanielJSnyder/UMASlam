@@ -16,6 +16,9 @@
 #define SLAM_POINT_CLOUD_CHANNEL "SLAM_POINT_CLOUD"
 #define SLAM_PARTICLE_CHANNEL "SLAM_PARTICLES"
 
+//set to a higher number to print more debug logs
+#define SLAM_DEBUG_LEVEL 0
+
 //profiling constants
 #define NUM_PROFILED_SCANS 30
 
