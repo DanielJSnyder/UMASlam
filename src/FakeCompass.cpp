@@ -8,6 +8,7 @@ using namespace common::LCM::types;
 double FakeCompass::getNorthLocation()
 {
 	double total_fog = std::accumulate(angles.begin(), angles.end(), 0.0);
+  // Finds a fairly accurate heading of the boat assuming that it goes mostly in one direction
 	double average_fog = total_fog/static_cast<double>(angles.size());
 	
 	//calculate the final angle of travel
@@ -20,7 +21,9 @@ double FakeCompass::getNorthLocation()
 // the GPS' north axis. Used to initialize FOG's initial angle
 double FakeCompass::getNorthLocation(double initial_theta)
 {
+  // End angle is calculated relative to GPS north
 	double end_angle = atan2(xy_coords.back().second, xy_coords.back().first);
+  // Returns an offset used to zero out the FOG at north
 	return (initial_theta - end_angle);
 }
 
