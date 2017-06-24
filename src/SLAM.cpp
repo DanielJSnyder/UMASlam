@@ -16,7 +16,6 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
          compass_north(COMPASS_DEFAULT)
 {
 	llcm.subscribe(SLAM_POINT_CLOUD_CHANNEL, &Slam::handlePointCloud, this);
-  llcm.subscribe(SLAM_RESET_CHANNEL, &Slam::handleReset, this);
 	llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
 	llcm.subscribe(FOG_CHANNEL, &Slam::handleFOGData, this);
   llcm.subscribe(COMPASS_CHANNEL, &Slam::handleCompassData, this);
@@ -54,13 +53,6 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
 		end_flag = true;
 	}
 	#endif
-}
-
-void Slam::handleReset(const lcm::ReceiveBuffer * rbuf,
-						 const string & chan,
-						 const slam_reset_t * slam_reset)
-{
-  end_flag = true;
 }
 
 void Slam::handleFOGData(const lcm::ReceiveBuffer * rbuf,

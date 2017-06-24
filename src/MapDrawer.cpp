@@ -90,7 +90,6 @@ void MapDrawer::drawMap(sf::RenderWindow & win)
 		win.display();
 		return;
 	}
-	//size_t num_rows = map.getNumCells()/num_cols;
 
 	//calculate row and column for 0,0
 	size_t origin_loc = map.convertToGridCoords(0,0);

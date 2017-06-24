@@ -120,7 +120,7 @@ void Mapper::addPointToMap(const SLAM::Pose & start_pose, const point3D_t & loca
 
   size_t start_cell = map.convertToGridCoords(start_pose.x, start_pose.y);
 
-  for(int i = 0; i < max_num_steps && prev_cell != end_cell; ++i)
+  for(int i = 0; i < max_num_steps && start_cell != end_cell; ++i)
   {
     //calculate coords based on similar triangles
     double dist_ratio = i * laser_step_size/total_dist;

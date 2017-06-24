@@ -5,7 +5,6 @@
 #include "Mapper.hpp"
 #include "FakeCompass.hpp"
 #include "../lcmtypes/slam_pc_t.hpp"
-#include "../lcmtypes/slam_reset_t.hpp"
 #include "../lcmtypes/fog_t.hpp"
 #include "../lcmtypes/gps_t.hpp"
 #include "../lcmtypes/compass_t.hpp"
@@ -31,10 +30,6 @@ public:
 	void handlePointCloud(const lcm::ReceiveBuffer * rbuf, 
 						  const std::string & chan,
 						  const SLAM::LCM::slam_pc_t * pc);
-
-	void handleReset(const lcm::ReceiveBuffer * rbuf, 
-						  const std::string & chan,
-						  const SLAM::LCM::slam_reset_t * slam_reset);
 
 	void handleState(const lcm::ReceiveBuffer * rbuf,
 					 const std::string & chan,

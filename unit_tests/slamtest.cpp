@@ -24,21 +24,13 @@ int main(int argc, char ** argv)
 		cout << "started draw thread" << endl;
 		while(1)
 		{
-			//drawer.switchMap(s.getMap());
 			l.handle();
 		}
 	}
 	else
 	{
-    // s.run() has its own loop, so this will just create and 
-    // start SLAM again whenever SLAM gets killed. At the time of
-    // this comment, SLAM should only get stopped by an LCM message
-    // in SLAM_RESET_CHANNEL
-    while(1)
-    {
-	    Slam s;
-      s.run();
-    }
+    Slam s;
+    s.run();
 	}
 
 }
