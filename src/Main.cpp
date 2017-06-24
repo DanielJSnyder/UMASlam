@@ -1,6 +1,6 @@
-#include "../src/SLAM.hpp"
-#include "../src/MapDrawer.hpp"
-#include "../src/Constants.hpp"
+#include "SLAM.hpp"
+#include "MapDrawer.hpp"
+#include "Constants.hpp"
 #include <thread>
 #include <chrono>
 #include <iostream>

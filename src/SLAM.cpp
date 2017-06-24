@@ -19,7 +19,6 @@ Slam::Slam() : mapper(MIN_X, MAX_X, MIN_Y, MAX_Y, SQUARE_SIZE),
   llcm.subscribe(GPS_CHANNEL, &Slam::handleGPSData, this);
   llcm.subscribe(FOG_CHANNEL, &Slam::handleFOGData, this);
   llcm.subscribe(COMPASS_CHANNEL, &Slam::handleCompassData, this);
-  llcm.subscribe(WAYPOINT_CHANNEL, &Slam::handleWaypointData, this);
 }
 
 void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
@@ -116,10 +115,6 @@ void Slam::handleState(const lcm::ReceiveBuffer * rbuf,
 {
   //not implemented, may not be needed
 }
-
-void Slam::handleWaypointData(const lcm::ReceiveBuffer * rbuf,
-             const string & chan,
-             const waypoint_t * waypoint_data
 
 const GridMap& Slam::getMap() 
 {
