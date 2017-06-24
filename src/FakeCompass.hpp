@@ -10,24 +10,24 @@
 class FakeCompass
 {
 public:
-	double getNorthLocation();
-	double getNorthLocation(double initial_theta);
+  double getNorthLocation();
+  double getNorthLocation(double initial_theta);
 
-	void addGPS(const common::LCM::types::gps_t & gps_data);
+  void addGPS(const common::LCM::types::gps_t & gps_data);
 
-	void addFOG(const common::LCM::types::fog_t & fog_data);
+  void addFOG(const common::LCM::types::fog_t & fog_data);
 
-	size_t getNumCoords() const 
-	{
-		return xy_coords.size();
-	}
+  size_t getNumCoords() const 
+  {
+    return xy_coords.size();
+  }
 
-	double getDistFromOrigin() const;
+  double getDistFromOrigin() const;
 
 private:
-	CoordTransformer coord_transformer;
-	std::vector<std::pair<double, double> > xy_coords;
-	std::vector<double> angles;
+  CoordTransformer coord_transformer;
+  std::vector<std::pair<double, double> > xy_coords;
+  std::vector<double> angles;
 };
 
 #endif

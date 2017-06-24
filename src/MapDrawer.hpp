@@ -19,23 +19,23 @@ constexpr size_t PIX_PER_SQUARE = 4;
 class MapDrawer
 {
 public:
-	void startDrawThread();
-	void switchMap(const GridMap& nmap);
-	void addPose(const SLAM::Pose& pose);
-	void startDraw();
-	void drawMap(sf::RenderWindow & win);
-	void drawPoses(sf::RenderWindow & win);
-	void drawBoat(sf::RenderWindow & win);
+  void startDrawThread();
+  void switchMap(const GridMap& nmap);
+  void addPose(const SLAM::Pose& pose);
+  void startDraw();
+  void drawMap(sf::RenderWindow & win);
+  void drawPoses(sf::RenderWindow & win);
+  void drawBoat(sf::RenderWindow & win);
 
-	void handleState(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const common::LCM::types::state_t * state);
-	void handleMap(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const SLAM::LCM::slam_map_t * slam_map);
+  void handleState(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const common::LCM::types::state_t * state);
+  void handleMap(const lcm::ReceiveBuffer * rbuf, const std::string & chan, const SLAM::LCM::slam_map_t * slam_map);
 
 private:
-	std::pair<double, double> convertToPixelCoords(double x, double y);
+  std::pair<double, double> convertToPixelCoords(double x, double y);
 
-	std::mutex map_mut;
-	GridMap map;
-	std::vector<SLAM::Pose> poses;
+  std::mutex map_mut;
+  GridMap map;
+  std::vector<SLAM::Pose> poses;
 
 };
 #endif

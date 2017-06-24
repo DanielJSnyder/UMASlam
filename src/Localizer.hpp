@@ -15,25 +15,25 @@
 
 struct Particle
 {
-	double x;
-	double y;
-	double theta;
-	double likelihood;
+  double x;
+  double y;
+  double theta;
+  double likelihood;
 
-	Particle();
+  Particle();
 
-	bool operator<(const Particle & po) const
-	{
-		return po.likelihood < likelihood;
-	}
+  bool operator<(const Particle & po) const
+  {
+    return po.likelihood < likelihood;
+  }
 };
 
 struct ParticleComparer
 {
-	bool operator()(const Particle & p1, const Particle & p2)
-	{
-		return p2.likelihood < p1.likelihood;
-	}
+  bool operator()(const Particle & p1, const Particle & p2)
+  {
+    return p2.likelihood < p1.likelihood;
+  }
 };
 
 struct Velocity {
@@ -44,67 +44,67 @@ struct Velocity {
 class Localizer
 {
 public:
-	Localizer(int num_particles, double predict_percent);
-	Localizer(int num_particles, double predict_percent, double gps_sigma, double fog_sigma);
+  Localizer(int num_particles, double predict_percent);
+  Localizer(int num_particles, double predict_percent, double gps_sigma, double fog_sigma);
 
-	void handleGPSData(const lcm::ReceiveBuffer * rbuf,
-					   const std::string & chan,
-					   const common::LCM::types::gps_t * gps_data);
+  void handleGPSData(const lcm::ReceiveBuffer * rbuf,
+             const std::string & chan,
+             const common::LCM::types::gps_t * gps_data);
 
-	void handleFOGData(const lcm::ReceiveBuffer * rbuf,
-					   const std::string & chan,
-					   const common::LCM::types::fog_t * fog_data);
+  void handleFOGData(const lcm::ReceiveBuffer * rbuf,
+             const std::string & chan,
+             const common::LCM::types::fog_t * fog_data);
 
-	void handlePointCloud(const lcm::ReceiveBuffer * rbuf,
-						  const std::string & chan,
-						  const SLAM::LCM::slam_pc_t * pc);
+  void handlePointCloud(const lcm::ReceiveBuffer * rbuf,
+              const std::string & chan,
+              const SLAM::LCM::slam_pc_t * pc);
 
-	SLAM::Pose getPose() const;
+  SLAM::Pose getPose() const;
 
-	void updateMap(const GridMap & new_map);
+  void updateMap(const GridMap & new_map);
 
-	void reset();
-	void reinitializeFOG(double new_initial_fog);
+  void reset();
+  void reinitializeFOG(double new_initial_fog);
 
-	double getFogInitialization() const;
+  double getFogInitialization() const;
 
 private:
-	void createPredictionParticles(int64_t curr_utime);
-	void createParticles(int64_t utime);
+  void createPredictionParticles(int64_t curr_utime);
+  void createParticles(int64_t utime);
 
-	void weightParticles(const SLAM::LCM::slam_pc_t & pc);
-	void weightParticlesWithGPS(const std::pair<double, double> & GPS_basis);
-	void weightParticlesWithFOG(const double last_theta);
-	void weightParticlesWithCloud(const SLAM::LCM::slam_pc_t & pc);
+  void weightParticles(const SLAM::LCM::slam_pc_t & pc);
+  void weightParticlesWithGPS(const std::pair<double, double> & GPS_basis);
+  void weightParticlesWithFOG(const double last_theta);
+  void weightParticlesWithCloud(const SLAM::LCM::slam_pc_t & pc);
 
-	void boundLikelihoods(std::vector<double> & likelihoods, double min_likelihood, double max_likelihood) const;
-	void setPose(int64_t utime);
-	void publishPose() const;
-	void publishParticles() const;
-	void clearLikelihoods();
-	void updateInternals(int64_t utime);
+  void boundLikelihoods(std::vector<double> & likelihoods, double min_likelihood, double max_likelihood) const;
+  void setPose(int64_t utime);
+  void publishPose() const;
+  void publishParticles() const;
+  void clearLikelihoods();
+  void updateInternals(int64_t utime);
 
-	GridMap map;
-	std::vector<Particle> particles;
-	SLAM::Pose last_pose;
+  GridMap map;
+  std::vector<Particle> particles;
+  SLAM::Pose last_pose;
 
-	std::pair<double, double> last_coord;
-	double last_theta;
+  std::pair<double, double> last_coord;
+  double last_theta;
 
-	CoordTransformer coord_transformer;
+  CoordTransformer coord_transformer;
 
-	std::normal_distribution<> gps_dist;
-	std::normal_distribution<> theta_fog_dist;
-	std::normal_distribution<> x_predict_dist;
-	std::normal_distribution<> y_predict_dist;
-	double initial_theta;
+  std::normal_distribution<> gps_dist;
+  std::normal_distribution<> theta_fog_dist;
+  std::normal_distribution<> x_predict_dist;
+  std::normal_distribution<> y_predict_dist;
+  double initial_theta;
 
-	//variables for predicting particles forward
-	size_t num_predict_particles;
-	int64_t last_utime;
-	std::pair<double, double> previous_gen_coord;
+  //variables for predicting particles forward
+  size_t num_predict_particles;
+  int64_t last_utime;
+  std::pair<double, double> previous_gen_coord;
 
-	bool fog_initialized;
+  bool fog_initialized;
 };
 
 #endif
