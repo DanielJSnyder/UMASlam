@@ -31,9 +31,6 @@ Localizer::Localizer(int num_particles, double predict_percent, double gps_sigma
 	last_utime(0),
 	fog_initialized(false)
 {
-  last_imu_data.utime = 0;
-  last_imu_data.udot = 0;
-  last_imu_data.vdot = 0;
 }
 
 SLAM::Pose Localizer::getPose() const
@@ -151,9 +148,9 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 {
 	vector<double> temp_likelihoods(particles.size(), 0);
 	size_t num_hits = 0;
-	for(size_t i = 0; i < particles.size(); ++i)
+	for(size_t particle_num = 0; particle_num < particles.size(); ++particle_num)
 	{
-		Particle & p = particles[i];
+		Particle & p = particles[particle_num];
 		double curr_particle_likelihood = 0;
 		SLAM::Pose particle_pose(p.x, p.y,p.theta, 0);
 
@@ -172,7 +169,6 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 				double x = pc.cloud[i].scan_line[j].x;
 				double y = pc.cloud[i].scan_line[j].y;
 				double z = pc.cloud[i].scan_line[j].z;
-				//double angle = SLAM::quadrantCorrectedAtan(y,x);
 				double angle = atan2(y,x);
 
 				if(abs(angle * 180.0/M_PI ) > LIDAR_MAP_RANGE_DEG)
@@ -197,11 +193,14 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
 		{
 			return;
 		}
-		temp_likelihoods[i] = curr_particle_likelihood;
+		temp_likelihoods[particle_num] = curr_particle_likelihood;
 	}
 
+  // Point cloud is scanned once per particle, so divide by the number
+  // of particles to get the number of hits in a single point cloud
 	num_hits /= particles.size();
 
+  // Minimum and maximum likelihoods for a single point cloud
 	double min_laser_likelihood = MISS_LIKELIHOOD_DEC_VALUE * num_hits;
 	double max_laser_likelihood = HIT_LIKELIHOOD_INC_VALUE * num_hits;
 	boundLikelihoods(temp_likelihoods, min_laser_likelihood, max_laser_likelihood);
@@ -225,6 +224,8 @@ void Localizer::boundLikelihoods(vector<double> & likelihoods, double min_likeli
 	double max_for_division = max_likelihood - min_likelihood;
 	for(double & d : likelihoods)
 	{
+    // Bounds likelihood between 0 and 1, where 0 is when
+    // d = min_likelihood and 1 is when d = max_likelihood
 		d = (d - min_likelihood)/max_for_division;
 		d = min(1.0, max(0.0, d));
 	}
@@ -236,6 +237,8 @@ void Localizer::setPose(int64_t utime)
 
 	size_t p = 0;
 
+  // These loops output a priority queue of the particles with
+  // the top NUM_AVERAGE_PARTICLES likelihoods
 	for(; p < NUM_AVERAGE_PARTICLES; ++p)
 	{
 		part_queue.push(particles[p]);
@@ -251,6 +254,7 @@ void Localizer::setPose(int64_t utime)
 	}
 
 	//move the particles into a vector for analysis
+  //The double is the sum of the distances from each adjacent particle in the vector
 	vector<pair<Particle, double> > averaging_particles(NUM_AVERAGE_PARTICLES);
 	for(size_t i = 0; i < NUM_AVERAGE_PARTICLES && !part_queue.empty(); ++i)
 	{
@@ -272,8 +276,6 @@ void Localizer::setPose(int64_t utime)
 		}
 	}
 	
-	sort(averaging_particles.begin(), averaging_particles.end(), [](const pair<Particle,double> &  a, const pair<Particle,double> &  b) { return a.second < b.second;});
-
 	double total_x = 0; 
 	double total_y = 0;
 	double total_theta = 0;
@@ -340,6 +342,8 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
 		sum_of_likelihoods += p.likelihood;
 	}
 
+  // Weird optimized thing that selects somewhat random 
+  // particles to be predicted forward
 	for(double curr_likelihood = 0;
     num_sampled < num_predict_particles && particle_index < particles.size();
     curr_likelihood += sum_of_likelihoods/num_predict_particles)
