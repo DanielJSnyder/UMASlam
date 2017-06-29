@@ -6,16 +6,16 @@ namespace SLAM
 
 struct Pose
 {
-	double x;
-	double y;
-	double theta;
-	int64_t utime;
+  double x;
+  double y;
+  double theta;
+  int64_t utime;
 
-	Pose() : 
-		x(0), y(0), theta(0), utime(0) {}
+  Pose() : 
+    x(0), y(0), theta(0), utime(0) {}
 
-	Pose(double tx, double ty, double tt, int64_t time) : 
-		x(tx), y(ty), theta(tt), utime(time) {}
+  Pose(double tx, double ty, double tt, int64_t time) : 
+    x(tx), y(ty), theta(tt), utime(time) {}
 };
 
 }

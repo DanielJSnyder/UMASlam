@@ -1,4 +1,2 @@
 *.o
 *.sw[opmnjkl]
-bin/*
-logs/*

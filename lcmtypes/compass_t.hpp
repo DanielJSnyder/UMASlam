@@ -6,10 +6,9 @@
 
 #include <lcm/lcm_coretypes.h>
 
-#ifndef __common_LCM_types_point_cloud_t_hpp__
-#define __common_LCM_types_point_cloud_t_hpp__
+#ifndef __common_LCM_types_compass_t_hpp__
+#define __common_LCM_types_compass_t_hpp__
 
-#include <vector>
 
 namespace common
 {
@@ -18,20 +17,20 @@ namespace LCM
 namespace types
 {
 
-class point_cloud_t
+class compass_t
 {
     public:
         int64_t    utime;
 
-        int32_t    row_size;
+        double     roll;
 
-        int32_t    col_size;
+        double     pitch;
 
-        std::vector< std::vector< double > > x;
+        double     yaw;
 
-        std::vector< std::vector< double > > y;
+        double     temp;
 
-        std::vector< std::vector< double > > z;
+        double     valid;
 
     public:
         /**
@@ -69,7 +68,7 @@ class point_cloud_t
         inline static int64_t getHash();
 
         /**
-         * Returns "point_cloud_t"
+         * Returns "compass_t"
          */
         inline static const char* getTypeName();
 
@@ -80,7 +79,7 @@ class point_cloud_t
         inline static int64_t _computeHash(const __lcm_hash_ptr *p);
 };
 
-int point_cloud_t::encode(void *buf, int offset, int maxlen) const
+int compass_t::encode(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
     int64_t hash = getHash();
@@ -94,7 +93,7 @@ int point_cloud_t::encode(void *buf, int offset, int maxlen) const
     return pos;
 }
 
-int point_cloud_t::decode(const void *buf, int offset, int maxlen)
+int compass_t::decode(const void *buf, int offset, int maxlen)
 {
     int pos = 0, thislen;
 
@@ -109,117 +108,87 @@ int point_cloud_t::decode(const void *buf, int offset, int maxlen)
     return pos;
 }
 
-int point_cloud_t::getEncodedSize() const
+int compass_t::getEncodedSize() const
 {
     return 8 + _getEncodedSizeNoHash();
 }
 
-int64_t point_cloud_t::getHash()
+int64_t compass_t::getHash()
 {
     static int64_t hash = _computeHash(NULL);
     return hash;
 }
 
-const char* point_cloud_t::getTypeName()
+const char* compass_t::getTypeName()
 {
-    return "point_cloud_t";
+    return "compass_t";
 }
 
-int point_cloud_t::_encodeNoHash(void *buf, int offset, int maxlen) const
+int compass_t::_encodeNoHash(void *buf, int offset, int maxlen) const
 {
     int pos = 0, tlen;
 
     tlen = __int64_t_encode_array(buf, offset + pos, maxlen - pos, &this->utime, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->row_size, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->roll, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_encode_array(buf, offset + pos, maxlen - pos, &this->col_size, 1);
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->pitch, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    if(this->col_size > 0) {
-        for (int a0 = 0; a0 < this->row_size; a0++) {
-            tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->x[a0][0], this->col_size);
-            if(tlen < 0) return tlen; else pos += tlen;
-        }
-    }
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->yaw, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
-    if(this->col_size > 0) {
-        for (int a0 = 0; a0 < this->row_size; a0++) {
-            tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->y[a0][0], this->col_size);
-            if(tlen < 0) return tlen; else pos += tlen;
-        }
-    }
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->temp, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
-    if(this->col_size > 0) {
-        for (int a0 = 0; a0 < this->row_size; a0++) {
-            tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->z[a0][0], this->col_size);
-            if(tlen < 0) return tlen; else pos += tlen;
-        }
-    }
+    tlen = __double_encode_array(buf, offset + pos, maxlen - pos, &this->valid, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int point_cloud_t::_decodeNoHash(const void *buf, int offset, int maxlen)
+int compass_t::_decodeNoHash(const void *buf, int offset, int maxlen)
 {
     int pos = 0, tlen;
 
     tlen = __int64_t_decode_array(buf, offset + pos, maxlen - pos, &this->utime, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->row_size, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->roll, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    tlen = __int32_t_decode_array(buf, offset + pos, maxlen - pos, &this->col_size, 1);
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->pitch, 1);
     if(tlen < 0) return tlen; else pos += tlen;
 
-    this->x.resize(this->row_size);
-    for (int a0 = 0; a0 < this->row_size; a0++) {
-        this->x[a0].resize(this->col_size);
-        if(this->col_size) {
-            tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->x[a0][0], this->col_size);
-            if(tlen < 0) return tlen; else pos += tlen;
-        }
-    }
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->yaw, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
-    this->y.resize(this->row_size);
-    for (int a0 = 0; a0 < this->row_size; a0++) {
-        this->y[a0].resize(this->col_size);
-        if(this->col_size) {
-            tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->y[a0][0], this->col_size);
-            if(tlen < 0) return tlen; else pos += tlen;
-        }
-    }
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->temp, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
-    this->z.resize(this->row_size);
-    for (int a0 = 0; a0 < this->row_size; a0++) {
-        this->z[a0].resize(this->col_size);
-        if(this->col_size) {
-            tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->z[a0][0], this->col_size);
-            if(tlen < 0) return tlen; else pos += tlen;
-        }
-    }
+    tlen = __double_decode_array(buf, offset + pos, maxlen - pos, &this->valid, 1);
+    if(tlen < 0) return tlen; else pos += tlen;
 
     return pos;
 }
 
-int point_cloud_t::_getEncodedSizeNoHash() const
+int compass_t::_getEncodedSizeNoHash() const
 {
     int enc_size = 0;
     enc_size += __int64_t_encoded_array_size(NULL, 1);
-    enc_size += __int32_t_encoded_array_size(NULL, 1);
-    enc_size += __int32_t_encoded_array_size(NULL, 1);
-    enc_size += this->row_size * __double_encoded_array_size(NULL, this->col_size);
-    enc_size += this->row_size * __double_encoded_array_size(NULL, this->col_size);
-    enc_size += this->row_size * __double_encoded_array_size(NULL, this->col_size);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
+    enc_size += __double_encoded_array_size(NULL, 1);
     return enc_size;
 }
 
-int64_t point_cloud_t::_computeHash(const __lcm_hash_ptr *)
+int64_t compass_t::_computeHash(const __lcm_hash_ptr *)
 {
-    int64_t hash = 0xa2547917778695c0LL;
+    int64_t hash = 0xfa06ae65bb852556LL;
     return (hash<<1) + ((hash>>63)&1);
 }
 

@@ -9,12 +9,12 @@ OBJ_PATH = ./obj
 SRC_PATH = ./src
 TEST_PATH = ./unit_tests
 
-all: GridTest MapperTest Localizer SlamTest PointCloudTest PointCloudPrinter ParticlePrinter PointCloudVis
+all: GridTest MapperTest Localizer Main PointCloudTest PointCloudPrinter ParticlePrinter PointCloudVis
 
 optimized: FLAGS += $(OPTIMIZATION_FLAGS)
 optimized: all
 
-debug: FLAGS += -DSLAM_DEBUG_LEVEL=$(LEVEL) -g3
+debug: FLAGS += -O3
 debug: all
 
 profile: FLAGS += $(PFLAGS)
@@ -31,19 +31,19 @@ obj/MapDrawer.o: $(SRC_PATH)/MapDrawer.cpp
 
 Localizer: $(OBJ_PATH)/Localizer.o
 
-Slam: $(OBJ_PATH)/SLAM.o
+SLAM: $(OBJ_PATH)/SLAM.o
 
-SlamTest: $(OBJ_PATH)/SLAM.o $(OBJ_PATH)/Localizer.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/slamtest.o $(OBJ_PATH)/CoordTransformer.o $(OBJ_PATH)/FakeCompass.o
-	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/SlamTest $(SFML_FLAGS) $(LCM_FLAGS)
+Main: $(OBJ_PATH)/SLAM.o $(OBJ_PATH)/Localizer.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/Main.o $(OBJ_PATH)/CoordTransformer.o $(OBJ_PATH)/FakeCompass.o
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/SLAM $(SFML_FLAGS) $(LCM_FLAGS)
 
 MapperTest: $(OBJ_PATH)/Mapper.o $(OBJ_PATH)/MapDrawer.o $(OBJ_PATH)/MapperTester.o $(OBJ_PATH)/GridMap.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/MapperTest $(SFML_FLAGS) $(LCM_FLAGS)
 
 GridTest: $(OBJ_PATH)/GridMap.o $(OBJ_PATH)/GridTests.o
-	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/GridTest
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/GridTest $(LCM_FLAGS)
 
 PointCloudTest: $(OBJ_PATH)/PointCloud.o $(OBJ_PATH)/point_cloud_test.o
-	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/pointcloudmaker $(LCM_FLAGS)
+	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/PointCloudMaker $(LCM_FLAGS)
 
 PointCloudPrinter: $(OBJ_PATH)/PointCloudPrinter.o
 	$(CXX) $(FLAGS) $^ -o $(BIN_PATH)/PointCloudPrinter $(LCM_FLAGS)
@@ -61,5 +61,5 @@ report:
 	$(MAKE) -C report 
 
 clean:
-	rm bin/*
-	rm obj/*
+	- rm bin/*
+	- rm obj/*

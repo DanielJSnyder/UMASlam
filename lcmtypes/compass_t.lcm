@@ -1,0 +1,11 @@
+package common.LCM.types;
+struct compass_t {
+	int64_t utime;
+
+	// units? relative to what? clockwise?
+	double roll;
+	double pitch;
+	double yaw; 
+	double temp; // ? 
+	double valid; // ? 
+}

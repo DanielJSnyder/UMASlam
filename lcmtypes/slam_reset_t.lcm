@@ -1,0 +1,10 @@
+package SLAM.LCM;
+
+// Doesn't actually need to carry data, when this
+// type is handled, SLAM will reset completely. This
+// may include information such as map size or resolution
+// in the future
+struct slam_reset_t
+{
+	int64_t utime;
+}

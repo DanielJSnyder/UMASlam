@@ -29,7 +29,6 @@ public:
 	
 private:
 	SLAM::LCM::point3D_t createPoint(int64_t utime, double range, double servo_angle, double point_angle);
-	SLAM::LCM::point3D_t createPoint2(int64_t utime, double range, double servo_angle, double point_angle);
 };
 
 #endif
