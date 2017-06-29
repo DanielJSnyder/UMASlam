@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 #include "../lcmtypes/slam_map_t.hpp"
-#include "../lcmtypes/point_cloud_t.hpp"
 #include <lcm/lcm-cpp.hpp>
 
 //coord system
