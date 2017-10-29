@@ -72,7 +72,7 @@ private:
   void createPredictionParticles(int64_t curr_utime);
   void createParticles(int64_t utime);
 
-  void weightParticles(const SLAM::LCM::slam_pc_t & pc);
+  void weightParticles(const SLAM::LCM::slam_pc_t * pc);
   void weightParticlesWithGPS(const std::pair<double, double> & GPS_basis);
   void weightParticlesWithFOG(const double last_theta);
   void weightParticlesWithCloud(const SLAM::LCM::slam_pc_t & pc);
@@ -105,6 +105,9 @@ private:
   std::pair<double, double> previous_gen_coord;
 
   bool fog_initialized;
+
+  // Stores the most recently received message's utime
+  int64_t current_utime;
 };
 
 #endif
