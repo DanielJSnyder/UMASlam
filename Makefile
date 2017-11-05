@@ -14,7 +14,7 @@ all: GridTest MapperTest Localizer Main PointCloudTest PointCloudPrinter Particl
 optimized: FLAGS += $(OPTIMIZATION_FLAGS)
 optimized: all
 
-debug: FLAGS += -O3
+debug: FLAGS += -g3
 debug: all
 
 profile: FLAGS += $(PFLAGS)

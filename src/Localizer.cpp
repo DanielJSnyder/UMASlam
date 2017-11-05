@@ -29,7 +29,8 @@ Localizer::Localizer(int num_particles, double predict_percent, double gps_sigma
   y_predict_dist(0, Y_PREDICTION_SIGMA),
   num_predict_particles(num_particles *predict_percent),
   last_utime(0),
-  fog_initialized(false)
+  fog_initialized(false),
+  current_utime(0)
 {
 }
 
@@ -47,6 +48,7 @@ void Localizer::handleGPSData(const lcm::ReceiveBuffer * rbuf,
                 const string & chan,
                 const gps_t * gps_data)
 {
+  current_utime = gps_data->utime;
   //if not initialized, initialize the coordinate transformation
   if(!coord_transformer.isInitialized())
   {
@@ -54,12 +56,14 @@ void Localizer::handleGPSData(const lcm::ReceiveBuffer * rbuf,
   }
 
   last_coord = coord_transformer.transform(gps_data->latitude, gps_data->longitude);
+  weightParticles(nullptr);
 }
 
 void Localizer::handleFOGData(const lcm::ReceiveBuffer * rbuf,
                 const string & chan,
                 const fog_t * fog_data)
 {
+  current_utime = fog_data->utime;
   if(!fog_initialized)
   {
     initial_theta = DEG_TO_RAD(fog_data->data);
@@ -67,13 +71,15 @@ void Localizer::handleFOGData(const lcm::ReceiveBuffer * rbuf,
   }
 
   last_theta = (DEG_TO_RAD(fog_data->data) - initial_theta);
+  weightParticles(nullptr);
 }
 
 void Localizer::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
                  const string & chan,
                  const slam_pc_t * pc)
 {
-  weightParticles(*pc);
+  current_utime = pc->utime;
+  weightParticles(pc);
 }
 
 void Localizer::updateInternals(int64_t utime)
@@ -82,23 +88,34 @@ void Localizer::updateInternals(int64_t utime)
   last_utime = utime;
 }
 
-void Localizer::weightParticles(const slam_pc_t & pc)
+// Passing in a nullptr will skip weighting with the point cloud
+void Localizer::weightParticles(const slam_pc_t * pc)
 {
-  // clear the old likelihoods and create the particles that will be weighted
-  createParticles(pc.utime);
-  clearLikelihoods();
+  // Don't do anything until at least one FOG and GPS
+  // measurement have been taken
+  if(coord_transformer.isInitialized() && fog_initialized) {
+    // Get the current utime and use this for all of the weights,
+    // just to ensure that it's consistent across all of these calls
+    int64_t frozen_utime = current_utime;
 
-  // weight the Particles based on the sensor data
-  weightParticlesWithGPS(last_coord);
-  weightParticlesWithFOG(last_theta);
-  weightParticlesWithCloud(pc);
+    // clear the old likelihoods and create the particles that will be weighted
+    createParticles(frozen_utime);
+    clearLikelihoods();
 
-  //set pose
-  setPose(pc.utime);
-  publishPose();
+    // weight the Particles based on the sensor data
+    weightParticlesWithGPS(last_coord);
+    weightParticlesWithFOG(last_theta);
+    if(pc != nullptr) {
+      weightParticlesWithCloud(*pc);
+    }
 
-  //clean up internals
-  updateInternals(pc.utime);
+    //set pose
+    setPose(frozen_utime);
+    publishPose();
+
+    //clean up internals
+    updateInternals(frozen_utime);
+  }
 }
 
 void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
@@ -155,10 +172,8 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
     SLAM::Pose particle_pose(p.x, p.y,p.theta, 0);
 
     //for each scan line and each end point do hit or miss
-    SLAM::logDebugMsg("point_cloud size: " + to_string(pc.cloud.size()) + "\n", 1);
     for(size_t i = 0; i < pc.cloud.size(); ++i)
     {
-      SLAM::logDebugMsg("scan size: " + to_string(pc.cloud[i].scan_line.size()) + "\n", 1);
       for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
       {
         if(pc.cloud[i].hit[j] == 0 )
@@ -326,7 +341,7 @@ void Localizer::publishParticles() const
   l.publish(SLAM_PARTICLE_CHANNEL, &curr_particles);
 }
 
-void Localizer::createPredictionParticles(int64_t curr_utime)
+void Localizer::createPredictionParticles(int64_t utime)
 {
   std::vector<Particle> temp_particles(num_predict_particles);
   //select the particles that will be predicted forward
@@ -381,12 +396,12 @@ void Localizer::createPredictionParticles(int64_t curr_utime)
   }
 }
 
-void Localizer::createParticles(int64_t curr_utime)
+void Localizer::createParticles(int64_t utime)
 {
   //create particles from last generation of particles
   if(last_utime != 0)
   {
-    createPredictionParticles(curr_utime);
+    createPredictionParticles(utime);
   }
 
   //add the gps and fog distribution
