@@ -91,27 +91,31 @@ void Localizer::updateInternals(int64_t utime)
 // Passing in a nullptr will skip weighting with the point cloud
 void Localizer::weightParticles(const slam_pc_t * pc)
 {
-  // Get the current utime and use this for all of the weights,
-  // just to ensure that it's consistent across all of these calls
-  int64_t frozen_utime = current_utime;
+  // Don't do anything until at least one FOG and GPS
+  // measurement have been taken
+  if(coord_transformer.isInitialized() && fog_initialized) {
+    // Get the current utime and use this for all of the weights,
+    // just to ensure that it's consistent across all of these calls
+    int64_t frozen_utime = current_utime;
 
-  // clear the old likelihoods and create the particles that will be weighted
-  createParticles(frozen_utime);
-  clearLikelihoods();
+    // clear the old likelihoods and create the particles that will be weighted
+    createParticles(frozen_utime);
+    clearLikelihoods();
 
-  // weight the Particles based on the sensor data
-  weightParticlesWithGPS(last_coord);
-  weightParticlesWithFOG(last_theta);
-  if(pc != nullptr) {
-    weightParticlesWithCloud(*pc);
+    // weight the Particles based on the sensor data
+    weightParticlesWithGPS(last_coord);
+    weightParticlesWithFOG(last_theta);
+    if(pc != nullptr) {
+      weightParticlesWithCloud(*pc);
+    }
+
+    //set pose
+    setPose(frozen_utime);
+    publishPose();
+
+    //clean up internals
+    updateInternals(frozen_utime);
   }
-
-  //set pose
-  setPose(frozen_utime);
-  publishPose();
-
-  //clean up internals
-  updateInternals(frozen_utime);
 }
 
 void Localizer::weightParticlesWithGPS(const pair<double, double> & GPS_basis)
