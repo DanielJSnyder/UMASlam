@@ -19,7 +19,6 @@ void Mapper::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
                 const string & chan,
                 const slam_pc_t * pc)
 {
-  SLAM::logDebugMsg("adding a slam point cloud to the map", 1);
   addToMap(*pc);
 }
 
@@ -34,6 +33,7 @@ SLAM::Pose Mapper::findAssociatedPose(int64_t time)
 {
   //find the pose closest to the time (assume movement between poses is neglegible)
   size_t i = 0;
+  SLAM::logDebugMsg(to_string(poses.size()), 1);
   for(i = 0; i < poses.size(); ++i)
   {
     if(time < poses[i].utime)
@@ -45,7 +45,11 @@ SLAM::Pose Mapper::findAssociatedPose(int64_t time)
   //i now represents the pose after the lidar scan time
   SLAM::Pose p1;
   SLAM::Pose p2;
-  if(i == 0)
+
+  // This will be used whenever there is only one element
+  // in the poses vector since you can't do any of the
+  // math below on a single pose
+  if(i == 0 || i == 1)
   {
     return poses.front();
   }

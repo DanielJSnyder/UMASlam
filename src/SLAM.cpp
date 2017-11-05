@@ -25,6 +25,7 @@ void Slam::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
                 const string & chan,
                 const slam_pc_t * pc)
 {
+
   if(num_mapped_scans >= NUM_ONLY_MAP_SCANS)
   {
     localizer.handlePointCloud(rbuf, chan, pc);

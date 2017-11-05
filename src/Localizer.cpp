@@ -168,10 +168,8 @@ void Localizer::weightParticlesWithCloud(const slam_pc_t & pc)
     SLAM::Pose particle_pose(p.x, p.y,p.theta, 0);
 
     //for each scan line and each end point do hit or miss
-    SLAM::logDebugMsg("point_cloud size: " + to_string(pc.cloud.size()) + "\n", 1);
     for(size_t i = 0; i < pc.cloud.size(); ++i)
     {
-      SLAM::logDebugMsg("scan size: " + to_string(pc.cloud[i].scan_line.size()) + "\n", 1);
       for(size_t j = 0; j < pc.cloud[i].scan_line.size(); ++j)
       {
         if(pc.cloud[i].hit[j] == 0 )
