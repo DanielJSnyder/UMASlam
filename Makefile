@@ -1,5 +1,5 @@
 CXX = g++
-FLAGS = -Wall -Wno-unused-function -Werror -lm -ldl -std=c++11
+FLAGS = -Wall -Wno-unused-function -Werror -pthread -std=c++11
 OPTIMIZATION_FLAGS = -O3
 PFLAGS = -pg -DPROFILE -O3
 SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
