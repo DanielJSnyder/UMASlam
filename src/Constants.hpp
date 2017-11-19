@@ -28,10 +28,10 @@
 #define NUM_ONLY_MAP_SCANS 1
 
 // Map dimensions and scale
-#define MAX_X 70
-#define MIN_X -70
-#define MAX_Y 70
-#define MIN_Y -70
+#define MAX_X 75
+#define MIN_X -75
+#define MAX_Y 75
+#define MIN_Y -75
 #define SQUARE_SIZE 0.5
 
 const static int HIT_THRESHOLD = 160;

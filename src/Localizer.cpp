@@ -71,7 +71,7 @@ void Localizer::handleFOGData(const lcm::ReceiveBuffer * rbuf,
   }
 
   last_theta = (DEG_TO_RAD(fog_data->data) - initial_theta);
-  weightParticles(nullptr);
+  //weightParticles(nullptr);
 }
 
 void Localizer::handlePointCloud(const lcm::ReceiveBuffer * rbuf,
