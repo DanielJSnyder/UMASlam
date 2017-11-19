@@ -113,8 +113,8 @@ void MapDrawer::drawMap(sf::RenderWindow & win)
 
     int halfx = WINDOW_HEIGHT/2.0;
     int halfy = WINDOW_WIDTH/2.0;
-    int min_x = halfx +(col_num - origin_col) * PIX_PER_SQUARE;
-    int min_y = halfy +(row_num - origin_row) * PIX_PER_SQUARE;
+    int min_x = halfx +(row_num - origin_row) * PIX_PER_SQUARE;
+    int min_y = halfy -(col_num - origin_col) * PIX_PER_SQUARE;
 
     square[0].position = sf::Vector2f(min_x, min_y);
     square[1].position = sf::Vector2f(min_x + PIX_PER_SQUARE, min_y);
@@ -169,12 +169,12 @@ void MapDrawer::drawBoat(sf::RenderWindow & win)
   double forward_dx = cos(poses.back().theta);
   double forward_dy = sin(poses.back().theta);
 
-  pair<double, double> coord2 = convertToPixelCoords(forward_dx + poses.back().x,
-                             forward_dy + poses.back().y);
-  pair<double, double> coord1 = convertToPixelCoords(-forward_dx - forward_dy/2.0 + poses.back().x,
-                             -forward_dy + forward_dx/2.0 + poses.back().y);
-  pair<double, double> coord3 = convertToPixelCoords(-forward_dx  + forward_dy/2.0 + poses.back().x,
-                             -forward_dy - forward_dx/2.0 + poses.back().y);
+  pair<double, double> coord2 = convertToPixelCoords(forward_dy + poses.back().y, 
+      -1 * (forward_dx + poses.back().x));
+  pair<double, double> coord1 = convertToPixelCoords(-forward_dy + forward_dx/2.0 + poses.back().y, 
+      -1 * (-forward_dx - forward_dy/2.0 + poses.back().x));
+  pair<double, double> coord3 = convertToPixelCoords(-forward_dy - forward_dx/2.0 + poses.back().y, 
+      -1 * (-forward_dx  + forward_dy/2.0 + poses.back().x));
   
   boat[0].position = sf::Vector2f(coord1.first, coord1.second);
   boat[0].color = sf::Color::Blue;
@@ -194,7 +194,7 @@ void MapDrawer::drawPoses(sf::RenderWindow & win)
   for(size_t i = 0; i < poses.size(); ++i)
   {
     SLAM::Pose p = poses[i];
-    pair<double, double> coords = convertToPixelCoords(p.x, p.y);
+    pair<double, double> coords = convertToPixelCoords(p.y, -p.x);
     pose_line[i].position = sf::Vector2f(coords.first, coords.second);
     pose_line[i].color = sf::Color::Red;
   }
